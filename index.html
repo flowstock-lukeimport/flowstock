@@ -66,9 +66,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .metric-value{font-size:26px;font-weight:600;letter-spacing:-0.5px;line-height:1;margin-bottom:4px;}
 .metric-sub{font-size:12px;color:var(--text3);}
 .metric-card.alert .metric-value{color:var(--red);}
-.metric-card.warn .metric-value{color:var(--amber);}
 .metric-card.info .metric-value{color:var(--blue);}
-.alert-banner{display:flex;align-items:center;gap:10px;background:var(--amber-dim);border:1px solid rgba(245,166,35,0.2);border-radius:var(--radius);padding:10px 14px;margin-bottom:20px;font-size:13px;color:var(--amber);}
+.alert-banner{display:flex;align-items:center;gap:10px;background:var(--amber-dim);border:1px solid rgba(245,166,35,0.2);border-radius:var(--radius);padding:10px 14px;margin-bottom:12px;font-size:13px;color:var(--amber);}
 .table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;}
 .table-scroll{overflow-x:auto;}
 table{width:100%;border-collapse:collapse;}
@@ -100,7 +99,7 @@ tbody tr:hover td{background:var(--bg3);}
 .form-group input:focus,.form-group select:focus{border-color:var(--green);}
 .form-group select option{background:var(--bg3);}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.uvc-info{background:var(--green-dim);border:1px solid var(--green-border);border-radius:var(--radius);padding:10px 14px;font-size:13px;color:var(--green);margin-bottom:14px;display:none;}
+.calc-info{background:var(--green-dim);border:1px solid var(--green-border);border-radius:var(--radius);padding:10px 14px;font-size:13px;color:var(--green);margin-bottom:14px;display:none;}
 .history-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
 .history-item:last-child{border-bottom:none;}
 .h-icon{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}
@@ -116,14 +115,15 @@ tbody tr:hover td{background:var(--bg3);}
 .depot-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
 .depot-name{font-size:15px;font-weight:600;}
 .depot-ref{font-size:11px;color:var(--text3);margin-top:2px;font-family:'DM Mono',monospace;}
-.depot-uvc-num{font-size:24px;font-weight:700;letter-spacing:-0.5px;text-align:right;}
-.depot-uvc-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;text-align:right;}
+.depot-right{text-align:right;}
+.depot-paquets{font-size:24px;font-weight:700;letter-spacing:-0.5px;}
+.depot-paquets-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;}
+.depot-cartons{font-size:13px;color:var(--text2);margin-top:2px;}
 .depot-meta{font-size:12px;color:var(--text3);margin-bottom:12px;}
 .depot-actions{display:flex;gap:8px;}
 .depot-btn-sortie{flex:1;padding:10px;border-radius:var(--radius);background:var(--green);color:#0a0a0a;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;}
 .depot-btn-detail{padding:10px 14px;border-radius:var(--radius);background:var(--bg3);color:var(--text2);font-size:13px;cursor:pointer;border:1px solid var(--border);font-family:inherit;}
-.tc-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:10px;transition:border-color 0.15s;}
-.tc-card:hover{border-color:var(--border2);}
+.tc-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:10px;}
 .tc-card.arrived{border-left:3px solid var(--green);}
 .tc-card.transit{border-left:3px solid var(--amber);}
 .tc-card.ordered{border-left:3px solid var(--blue);}
@@ -135,7 +135,7 @@ tbody tr:hover td{background:var(--bg3);}
 .tc-meta-item{display:flex;flex-direction:column;gap:2px;}
 .tc-meta-label{color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:0.5px;}
 .tc-meta-value{color:var(--text);font-weight:500;}
-.tc-alerte{background:var(--red-dim);border:1px solid rgba(255,92,92,0.2);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--red);margin-bottom:10px;line-height:1.4;}
+.tc-alerte{background:var(--red-dim);border:1px solid rgba(255,92,92,0.2);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--red);margin-bottom:10px;}
 .tc-actions{display:flex;gap:6px;flex-wrap:wrap;}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;}
 .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:24px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;}
@@ -157,18 +157,21 @@ tbody tr:hover td{background:var(--bg3);}
 .spinner{width:18px;height:18px;border:2px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin 0.7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .empty{text-align:center;padding:40px;color:var(--text3);}
-.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.section-title{font-size:14px;font-weight:600;}
 .loc-tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
 .loc-depot{background:rgba(0,217,126,0.15);color:var(--green);}
 .loc-logistisud{background:rgba(77,159,255,0.15);color:var(--blue);}
 .tc-notify{background:var(--green-dim);border:1px solid var(--green-border);border-radius:var(--radius);padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .tc-notify-text{font-size:13px;color:var(--green);}
 .tc-notify-btn{padding:6px 14px;background:var(--green);color:#0a0a0a;border:none;border-radius:var(--radius);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;}
+/* Stock display */
+.stock-ctn{font-weight:700;font-size:14px;}
+.stock-paq{font-size:12px;color:var(--text3);margin-top:1px;}
+.stock-low{color:var(--red)!important;}
 @media(max-width:768px){.sidebar{display:none;}.metrics{grid-template-columns:1fr 1fr;}.two-col,.form-row{grid-template-columns:1fr;}.content{padding:16px;}}
 </style>
 </head>
 <body>
+
 <div class="login-screen" id="login-screen">
   <div class="login-box">
     <div class="login-logo">
@@ -233,6 +236,7 @@ tbody tr:hover td{background:var(--bg3);}
   </div>
 
   <div class="main">
+
     <!-- DASHBOARD -->
     <div id="view-dashboard" class="view active">
       <div class="topbar">
@@ -244,7 +248,7 @@ tbody tr:hover td{background:var(--bg3);}
         <div id="tc-notify-wrap"></div>
         <div class="metrics">
           <div class="metric-card"><div class="metric-label">Références actives</div><div class="metric-value" id="m-refs">—</div><div class="metric-sub">produits en stock</div></div>
-          <div class="metric-card"><div class="metric-label">UVC disponibles</div><div class="metric-value" id="m-uvc">—</div><div class="metric-sub">unités totales</div></div>
+          <div class="metric-card"><div class="metric-label">Paquets disponibles</div><div class="metric-value" id="m-paq">—</div><div class="metric-sub">total toutes réfs</div></div>
           <div class="metric-card info"><div class="metric-label">TC en cours</div><div class="metric-value" id="m-tc">—</div><div class="metric-sub">conteneurs actifs</div></div>
           <div class="metric-card alert"><div class="metric-label">Alertes stock bas</div><div class="metric-value" id="m-alerte">—</div><div class="metric-sub">sous seuil</div></div>
         </div>
@@ -297,8 +301,12 @@ tbody tr:hover td{background:var(--bg3);}
         </div>
         <div class="table-wrap table-scroll">
           <table>
-            <thead><tr><th>Désignation</th><th>Référence</th><th>Taille</th><th>EAN</th><th>PCB</th><th>UVC/paquet</th><th>Dépôt (ctn)</th><th>Logistisud (ctn)</th><th>Total UVC</th><th>En cde</th><th>DLC</th><th>Seuil</th><th>Statut</th><th></th></tr></thead>
-            <tbody id="stock-table-body"><tr><td colspan="14"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
+            <thead><tr>
+              <th>Désignation</th><th>Taille</th><th>Référence</th><th>EAN</th><th>PCB</th>
+              <th>Dépôt</th><th>Logistisud</th><th>Total</th>
+              <th>En cde (ctn)</th><th>DLC</th><th>Seuil</th><th>Statut</th><th></th>
+            </tr></thead>
+            <tbody id="stock-table-body"><tr><td colspan="13"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
           </table>
         </div>
       </div>
@@ -316,7 +324,7 @@ tbody tr:hover td{background:var(--bg3);}
       <div class="content">
         <div class="table-wrap table-scroll">
           <table>
-            <thead><tr><th>Type</th><th>Produit</th><th>Taille</th><th>Emplacement</th><th>Qté (ctn)</th><th>UVC</th><th>N° Lot / TC</th><th>DLC lot</th><th>Canal</th><th>Client</th><th>BL</th><th>Date</th></tr></thead>
+            <thead><tr><th>Type</th><th>Produit</th><th>Taille</th><th>Emplacement</th><th>Cartons</th><th>Paquets</th><th>N° Lot</th><th>DLC lot</th><th>Canal</th><th>Client</th><th>BL</th><th>Date</th></tr></thead>
             <tbody id="mouv-table-body"><tr><td colspan="12"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
           </table>
         </div>
@@ -332,8 +340,8 @@ tbody tr:hover td{background:var(--bg3);}
       <div class="content">
         <div class="table-wrap table-scroll">
           <table>
-            <thead><tr><th>Désignation</th><th>Référence</th><th>Taille</th><th>EAN</th><th>PCB</th><th>UVC/paquet</th><th>Seuil alerte</th><th>Statut</th><th></th></tr></thead>
-            <tbody id="prod-table-body"><tr><td colspan="9"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
+            <thead><tr><th>Désignation</th><th>Taille</th><th>Référence</th><th>EAN</th><th>PCB (paquets/ctn)</th><th>Seuil alerte (ctn)</th><th>Statut</th><th></th></tr></thead>
+            <tbody id="prod-table-body"><tr><td colspan="8"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
           </table>
         </div>
       </div>
@@ -349,6 +357,7 @@ tbody tr:hover td{background:var(--bg3);}
       </div>
       <div class="content"><div id="depot-list"><div class="loading"><div class="spinner"></div></div></div></div>
     </div>
+
   </div>
 </div>
 
@@ -362,13 +371,13 @@ tbody tr:hover td{background:var(--bg3);}
     </div>
     <div class="form-row">
       <div class="form-group"><label>Quantité (cartons) *</label><input type="number" id="entree-qte" min="1" placeholder="0" oninput="updateEntreeCalc()"></div>
-      <div class="form-group"><label>N° Lot / Conteneur</label><input type="text" id="entree-lot" placeholder="ex: QUANZHOU 1126"></div>
+      <div class="form-group"><label>N° Lot / Conteneur</label><input type="text" id="entree-lot" placeholder="ex: QUANZHOU-1126"></div>
     </div>
     <div class="form-row">
       <div class="form-group"><label>DLC du lot</label><input type="month" id="entree-dlc"></div>
-      <div class="form-group"><label>Référence TC (si lié)</label><select id="entree-tc-ref"><option value="">Aucun</option></select></div>
+      <div class="form-group"><label>TC lié</label><select id="entree-tc-ref"><option value="">Aucun</option></select></div>
     </div>
-    <div class="uvc-info" id="entree-uvc-info"></div>
+    <div class="calc-info" id="entree-calc"></div>
     <div class="form-group"><label>Remarque</label><input type="text" id="entree-remarque" placeholder="Optionnel..."></div>
     <div class="modal-actions"><button class="btn" onclick="closeModal('modal-entree')">Annuler</button><button class="btn btn-green" onclick="validerEntree()">Valider l'entrée</button></div>
   </div>
@@ -384,10 +393,10 @@ tbody tr:hover td{background:var(--bg3);}
     </div>
     <div class="form-row">
       <div class="form-group"><label>Quantité (cartons) *</label><input type="number" id="sortie-qte" min="1" placeholder="0" oninput="updateSortieCalc()"></div>
-      <div class="form-group"><label>UVC (calculé auto)</label><input type="text" id="sortie-uvc-display" readonly style="background:var(--bg4);color:var(--text3)"></div>
+      <div class="form-group"><label>= Paquets (auto)</label><input type="text" id="sortie-paq-display" readonly style="background:var(--bg4);color:var(--text3)"></div>
     </div>
     <div class="form-row">
-      <div class="form-group"><label>N° Lot / TC</label><input type="text" id="sortie-lot" placeholder="ex: QUANZHOU 1126"></div>
+      <div class="form-group"><label>N° Lot / TC</label><input type="text" id="sortie-lot" placeholder="ex: QUANZHOU-1126"></div>
       <div class="form-group"><label>DLC lot</label><input type="text" id="sortie-dlc-lot" placeholder="ex: 12/2025"></div>
     </div>
     <div class="form-row">
@@ -439,20 +448,20 @@ tbody tr:hover td{background:var(--bg3);}
     <input type="hidden" id="produit-id">
     <div class="form-row">
       <div class="form-group"><label>Désignation *</label><input type="text" id="prod-designation" placeholder="ex: Couche ZOOPI"></div>
-      <div class="form-group"><label>Référence *</label><input type="text" id="prod-reference" placeholder="ex: REF-0001"></div>
+      <div class="form-group"><label>Référence *</label><input type="text" id="prod-reference" placeholder="ex: ZOOPI-S"></div>
     </div>
     <div class="form-row">
       <div class="form-group"><label>Taille</label><select id="prod-taille"><option value="">Sans taille</option><option value="S">S</option><option value="M">M</option><option value="L">L</option><option value="XL">XL</option><option value="XXL">XXL</option></select></div>
       <div class="form-group"><label>EAN</label><input type="text" id="prod-ean" placeholder="Code-barres EAN"></div>
     </div>
     <div class="form-row">
-      <div class="form-group"><label>PCB (paquets/carton) *</label><input type="number" id="prod-pcb" min="1" placeholder="ex: 6"></div>
-      <div class="form-group"><label>UVC par paquet</label><input type="number" id="prod-uvc-paquet" min="1" placeholder="ex: 42 pour taille S"></div>
-    </div>
-    <div class="form-row">
+      <div class="form-group">
+        <label>PCB — paquets par carton *</label>
+        <input type="number" id="prod-pcb" min="1" placeholder="ex: 6 → 1 carton = 6 paquets">
+      </div>
       <div class="form-group"><label>Seuil alerte (cartons)</label><input type="number" id="prod-seuil" min="0" placeholder="ex: 20"></div>
-      <div class="form-group"><label>Statut</label><select id="prod-statut"><option>Disponible</option><option>En commande</option><option>Rupture</option><option>Inactif</option></select></div>
     </div>
+    <div class="form-group"><label>Statut</label><select id="prod-statut"><option>Disponible</option><option>En commande</option><option>Rupture</option><option>Inactif</option></select></div>
     <div class="modal-actions"><button class="btn" onclick="closeModal('modal-produit')">Annuler</button><button class="btn btn-green" onclick="saveProduit()">Enregistrer</button></div>
   </div>
 </div>
@@ -463,15 +472,15 @@ tbody tr:hover td{background:var(--bg3);}
     <div class="modal-title" id="sortie-depot-title">Sortie</div>
     <div class="form-group"><label>N° BL *</label><input type="text" id="depot-sortie-bl" placeholder="ex: BL-2024-892"></div>
     <div class="form-row">
-      <div class="form-group"><label>Quantité (cartons) *</label><input type="number" id="depot-sortie-qte" min="1" placeholder="0" oninput="updateDepotUVC()"></div>
-      <div class="form-group"><label>UVC (auto)</label><input type="text" id="depot-sortie-uvc" readonly style="background:var(--bg4);color:var(--text3)"></div>
+      <div class="form-group"><label>Quantité (cartons) *</label><input type="number" id="depot-sortie-qte" min="1" placeholder="0" oninput="updateDepotCalc()"></div>
+      <div class="form-group"><label>= Paquets (auto)</label><input type="text" id="depot-sortie-paq" readonly style="background:var(--bg4);color:var(--text3)"></div>
     </div>
     <div class="form-row">
       <div class="form-group"><label>Canal</label><select id="depot-sortie-canal"><option value="E-COM">E-COM</option><option value="GMS">GMS</option><option value="Autre">Autre</option></select></div>
       <div class="form-group"><label>Client</label><input type="text" id="depot-sortie-client" placeholder="Nom du client"></div>
     </div>
     <div class="form-row">
-      <div class="form-group"><label>N° Lot / TC</label><input type="text" id="depot-sortie-lot" placeholder="ex: QUANZHOU 1126"></div>
+      <div class="form-group"><label>N° Lot / TC</label><input type="text" id="depot-sortie-lot" placeholder="ex: QUANZHOU-1126"></div>
       <div class="form-group"><label>DLC lot</label><input type="text" id="depot-sortie-dlc" placeholder="ex: 12/2025"></div>
     </div>
     <div class="form-group"><label>Remarque</label><input type="text" id="depot-sortie-remarque" placeholder="Optionnel..."></div>
@@ -486,8 +495,20 @@ const SUPABASE_URL='https://crorodoeotvsvkhbyoxl.supabase.co';
 const SUPABASE_KEY='sb_publishable_RGWWC84u__tpS-KmzsySkQ_Gz4LUVa2';
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const APP_PASSWORD='flowstock2024';
-const SESSION_KEY='fs_auth_v2';
+const SESSION_KEY='fs_auth_v3';
 let allProduits=[],allTC=[],stockFilter='',statusFilter='',tcEtapeFilter='',tcSearchFilter='',currentDepotProduit=null,currentRole='bureau';
+
+// PCB = paquets par carton. Stock affiché = cartons + paquets (ctn * PCB)
+function paquets(ctn, pcb){ return (ctn||0)*(pcb||1); }
+function fmtStock(ctn, pcb){
+  const p=paquets(ctn,pcb);
+  return `<div class="stock-ctn">${ctn||0} ctn</div><div class="stock-paq">${p} paquets</div>`;
+}
+function fmtStockLow(ctn, pcb, seuil){
+  const low = seuil && (ctn||0) <= seuil;
+  const p=paquets(ctn,pcb);
+  return `<div class="stock-ctn${low?' stock-low':''}">${ctn||0} ctn</div><div class="stock-paq${low?' stock-low':''}">${p} paquets</div>`;
+}
 
 function checkLogin(){
   const pwd=document.getElementById('login-pwd').value;
@@ -528,22 +549,22 @@ async function loadTC(){
 }
 
 async function loadMouvements(){
-  const{data,error}=await sb.from('mouvements').select('*,produits(designation,reference,taille)').order('created_at',{ascending:false}).limit(200);
+  const{data,error}=await sb.from('mouvements').select('*,produits(designation,taille,pcb)').order('created_at',{ascending:false}).limit(200);
   if(error){handleError(error);return;}
   renderMouvTable(data||[]);renderHistoryDash((data||[]).slice(0,6));
 }
 
 function updateMetrics(produits){
   const actifs=produits.filter(p=>p.statut!=='Inactif');
-  const totalUVC=produits.reduce((s,p)=>s+((p.qte_depot||0)+(p.qte_logistisud||0))*(p.pcb||1)*(p.uvc_paquet||1),0);
+  const totalPaq=produits.reduce((s,p)=>s+paquets((p.qte_depot||0)+(p.qte_logistisud||0),p.pcb),0);
   const alertes=produits.filter(p=>p.seuil_alerte&&((p.qte_depot||0)+(p.qte_logistisud||0))<=p.seuil_alerte&&p.statut!=='Inactif');
   document.getElementById('m-refs').textContent=actifs.length;
-  document.getElementById('m-uvc').textContent=totalUVC.toLocaleString('fr');
+  document.getElementById('m-paq').textContent=totalPaq.toLocaleString('fr');
   document.getElementById('m-alerte').textContent=alertes.length;
   const badge=document.getElementById('alert-badge');
   if(alertes.length>0){badge.style.display='';badge.textContent=alertes.length;}else badge.style.display='none';
-  const wrap=document.getElementById('alert-banner-wrap');
-  wrap.innerHTML=alertes.length>0?`<div class="alert-banner">⚠ ${alertes.length} produit${alertes.length>1?'s':''} en dessous du seuil d'alerte</div>`:'';
+  document.getElementById('alert-banner-wrap').innerHTML=alertes.length>0
+    ?`<div class="alert-banner">⚠ ${alertes.length} produit${alertes.length>1?'s':''} en dessous du seuil d'alerte</div>`:'';
 }
 
 function updateTCMetrics(tc){
@@ -557,7 +578,10 @@ function updateTCMetrics(tc){
 function renderTCNotify(tc){
   const wrap=document.getElementById('tc-notify-wrap');
   const arrives=tc.filter(t=>t.etape==='DLR'&&t.lien_stock==='oui');
-  wrap.innerHTML=arrives.map(t=>`<div class="tc-notify"><span class="tc-notify-text">🚢 TC ${t.ref_li} (${t.fournisseur||''}) est en DLR — lié au stock.</span><button class="tc-notify-btn" onclick="openEntreeFromTC(${t.id})">Créer entrée stock</button></div>`).join('');
+  wrap.innerHTML=arrives.map(t=>`<div class="tc-notify">
+    <span class="tc-notify-text">🚢 TC ${t.ref_li} (${t.fournisseur||''}) est en DLR — lié au stock.</span>
+    <button class="tc-notify-btn" onclick="openEntreeFromTC(${t.id})">Créer entrée stock</button>
+  </div>`).join('');
 }
 
 function renderTCList(tc){
@@ -579,14 +603,14 @@ function renderTCList(tc){
       </div>
       <span class="badge ${ec[t.etape]||'badge-gray'}">${t.etape||'—'}</span>
     </div>
-    ${t.maj_alerte?`<div class="tc-alerte">⚠ ${t.maj_alerte.substring(0,150)}${t.maj_alerte.length>150?'...':''}</div>`:''}
+    ${t.maj_alerte?`<div class="tc-alerte">⚠ ${t.maj_alerte.substring(0,150)}</div>`:''}
     <div class="tc-meta">
-      ${t.numero_tc?`<div class="tc-meta-item"><span class="tc-meta-label">N° TC</span><span class="tc-meta-value mono" style="font-family:'DM Mono',monospace;font-size:12px">${t.numero_tc.split('\n')[0]}</span></div>`:''}
-      ${t.etd?`<div class="tc-meta-item"><span class="tc-meta-label">ETD</span><span class="tc-meta-value">${t.etd.split('\n')[0]}</span></div>`:''}
+      ${t.numero_tc?`<div class="tc-meta-item"><span class="tc-meta-label">N° TC</span><span class="tc-meta-value" style="font-family:'DM Mono',monospace;font-size:12px">${t.numero_tc}</span></div>`:''}
+      ${t.etd?`<div class="tc-meta-item"><span class="tc-meta-label">ETD</span><span class="tc-meta-value">${t.etd}</span></div>`:''}
       <div class="tc-meta-item"><span class="tc-meta-label">ETA</span><span class="tc-meta-value">${t.eta?new Date(t.eta).toLocaleDateString('fr',{day:'2-digit',month:'2-digit',year:'numeric'}):'—'}</span></div>
       ${t.type_tc?`<div class="tc-meta-item"><span class="tc-meta-label">Type</span><span class="tc-meta-value">${t.type_tc}</span></div>`:''}
       ${t.compagnie?`<div class="tc-meta-item"><span class="tc-meta-label">Ligne</span><span class="tc-meta-value">${t.compagnie}</span></div>`:''}
-      ${t.designation?`<div class="tc-meta-item"><span class="tc-meta-label">Marchandise</span><span class="tc-meta-value">${t.designation.substring(0,50)}</span></div>`:''}
+      ${t.designation?`<div class="tc-meta-item"><span class="tc-meta-label">Marchandise</span><span class="tc-meta-value">${t.designation}</span></div>`:''}
     </div>
     <div class="tc-actions">
       <button class="btn btn-sm" onclick="editTC(${t.id})">Modifier</button>
@@ -602,25 +626,25 @@ function renderStockTable(produits){
   let filtered=produits;
   if(statusFilter)filtered=filtered.filter(p=>p.statut===statusFilter);
   if(stockFilter){const q=stockFilter;filtered=filtered.filter(p=>(p.designation||'').toLowerCase().includes(q)||(p.reference||'').toLowerCase().includes(q)||(p.ean||'').toLowerCase().includes(q));}
-  if(!filtered.length){tbody.innerHTML='<tr><td colspan="14"><div class="empty">Aucun produit</div></td></tr>';return;}
+  if(!filtered.length){tbody.innerHTML='<tr><td colspan="13"><div class="empty">Aucun produit</div></td></tr>';return;}
   tbody.innerHTML=filtered.map(p=>{
-    const t=(p.qte_depot||0)+(p.qte_logistisud||0);
-    const uvc=t*(p.pcb||1)*(p.uvc_paquet||1);
-    const low=p.seuil_alerte&&t<=p.seuil_alerte;
+    const ctnDepot=p.qte_depot||0;
+    const ctnLogi=p.qte_logistisud||0;
+    const ctnTotal=ctnDepot+ctnLogi;
+    const low=p.seuil_alerte&&ctnTotal<=p.seuil_alerte;
     const bc={Disponible:'badge-green','En commande':'badge-amber',Rupture:'badge-red',Inactif:'badge-gray'}[p.statut]||'badge-gray';
     return `<tr>
-      <td style="font-weight:500${low?';color:var(--red)':''}">${p.designation}</td>
-      <td class="mono">${p.reference||'—'}</td>
+      <td style="font-weight:500">${p.designation}</td>
       <td>${p.taille?`<span class="badge badge-blue">${p.taille}</span>`:'—'}</td>
+      <td class="mono">${p.reference||'—'}</td>
       <td class="mono">${p.ean||'—'}</td>
-      <td style="text-align:center">${p.pcb||'—'}</td>
-      <td style="text-align:center">${p.uvc_paquet||'—'}</td>
-      <td style="text-align:center;font-weight:600${low?';color:var(--red)':''}">${p.qte_depot||0}</td>
-      <td style="text-align:center;color:var(--blue)">${p.qte_logistisud||0}</td>
-      <td style="text-align:center;font-weight:600;color:${low?'var(--red)':'var(--green)'}">${uvc.toLocaleString('fr')}</td>
+      <td style="text-align:center;font-weight:600">${p.pcb||'—'}</td>
+      <td>${fmtStockLow(ctnDepot,p.pcb,p.seuil_alerte)}</td>
+      <td style="color:var(--blue)">${fmtStock(ctnLogi,p.pcb)}</td>
+      <td>${fmtStockLow(ctnTotal,p.pcb,p.seuil_alerte)}</td>
       <td style="text-align:center;color:var(--text3)">${p.en_commande_cartons||'—'}</td>
       <td class="mono">${p.dlc||'—'}</td>
-      <td style="text-align:center">${p.seuil_alerte||'—'}</td>
+      <td style="text-align:center">${p.seuil_alerte?p.seuil_alerte+' ctn':'—'}</td>
       <td><span class="badge ${bc}">${p.statut}</span></td>
       <td><button class="btn btn-sm" onclick="editProduit(${p.id})">Modifier</button></td>
     </tr>`;
@@ -629,14 +653,16 @@ function renderStockTable(produits){
 
 function renderProdTable(produits){
   const tbody=document.getElementById('prod-table-body');
-  if(!produits.length){tbody.innerHTML='<tr><td colspan="9"><div class="empty">Aucun produit</div></td></tr>';return;}
+  if(!produits.length){tbody.innerHTML='<tr><td colspan="8"><div class="empty">Aucun produit</div></td></tr>';return;}
   tbody.innerHTML=produits.map(p=>{
     const bc={Disponible:'badge-green','En commande':'badge-amber',Rupture:'badge-red',Inactif:'badge-gray'}[p.statut]||'badge-gray';
     return `<tr>
-      <td style="font-weight:500">${p.designation}</td><td class="mono">${p.reference||'—'}</td>
+      <td style="font-weight:500">${p.designation}</td>
       <td>${p.taille?`<span class="badge badge-blue">${p.taille}</span>`:'—'}</td>
-      <td class="mono">${p.ean||'—'}</td><td style="text-align:center">${p.pcb||'—'}</td>
-      <td style="text-align:center">${p.uvc_paquet||'—'}</td><td style="text-align:center">${p.seuil_alerte||'—'}</td>
+      <td class="mono">${p.reference||'—'}</td>
+      <td class="mono">${p.ean||'—'}</td>
+      <td style="text-align:center;font-weight:600">${p.pcb||'—'} paquets/ctn</td>
+      <td style="text-align:center">${p.seuil_alerte?p.seuil_alerte+' ctn':'—'}</td>
       <td><span class="badge ${bc}">${p.statut}</span></td>
       <td style="display:flex;gap:6px">
         <button class="btn btn-sm" onclick="editProduit(${p.id})">Modifier</button>
@@ -651,25 +677,28 @@ function renderDepotList(produits){
   const el=document.getElementById('depot-list');
   if(!actifs.length){el.innerHTML='<div class="empty">Aucun produit</div>';return;}
   el.innerHTML=actifs.map(p=>{
-    const t=(p.qte_depot||0)+(p.qte_logistisud||0);
-    const uvc=t*(p.pcb||1)*(p.uvc_paquet||1);
-    const low=p.seuil_alerte&&t<=p.seuil_alerte;
+    const ctnDepot=p.qte_depot||0;
+    const ctnTotal=ctnDepot+(p.qte_logistisud||0);
+    const paq=paquets(ctnDepot,p.pcb);
+    const low=p.seuil_alerte&&ctnTotal<=p.seuil_alerte;
     return `<div class="depot-card${low?' low-stock':''}" data-designation="${(p.designation||'').toLowerCase()}" data-ean="${(p.ean||'').toLowerCase()}" data-taille="${(p.taille||'').toLowerCase()}">
       <div class="depot-header">
         <div>
           <div class="depot-name">${p.designation}${p.taille?` <span class="badge badge-blue" style="font-size:10px">${p.taille}</span>`:''}</div>
-          <div class="depot-ref">${p.reference||''} · PCB ${p.pcb||'?'} · ${p.uvc_paquet||'?'} UVC/paquet</div>
+          <div class="depot-ref">${p.reference||''} · PCB ${p.pcb||'?'}</div>
         </div>
-        <div><div class="depot-uvc-num" style="${low?'color:var(--red)':''}">${uvc.toLocaleString('fr')}</div><div class="depot-uvc-label">${low?'STOCK BAS !':'UVC dispo'}</div></div>
+        <div class="depot-right">
+          <div class="depot-paquets" style="${low?'color:var(--red)':''}">${paq}</div>
+          <div class="depot-paquets-label">${low?'STOCK BAS !':'paquets dépôt'}</div>
+          <div class="depot-cartons">${ctnDepot} carton${ctnDepot>1?'s':''}</div>
+        </div>
       </div>
       <div class="depot-meta">
-        <span class="loc-tag loc-depot">Dépôt: ${p.qte_depot||0} ctn</span> &nbsp;
-        <span class="loc-tag loc-logistisud">Logistisud: ${p.qte_logistisud||0} ctn</span>
-        ${p.dlc?' · DLC '+p.dlc:''}
+        <span class="loc-tag loc-depot">Dépôt: ${ctnDepot} ctn / ${paquets(ctnDepot,p.pcb)} paquets</span> &nbsp;
+        <span class="loc-tag loc-logistisud">Logistisud: ${p.qte_logistisud||0} ctn / ${paquets(p.qte_logistisud||0,p.pcb)} paquets</span>
       </div>
       <div class="depot-actions">
         <button class="depot-btn-sortie" onclick="openSortieDepot(${p.id})">Saisir une sortie</button>
-        <button class="depot-btn-detail" onclick="showToast('Dépôt: ${p.qte_depot||0} ctn / Logistisud: ${p.qte_logistisud||0} ctn · ${uvc.toLocaleString()} UVC','success')">Détail</button>
       </div>
     </div>`;
   }).join('');
@@ -680,7 +709,8 @@ function renderMouvTable(mouvements){
   if(!mouvements.length){tbody.innerHTML='<tr><td colspan="12"><div class="empty">Aucun mouvement</div></td></tr>';return;}
   tbody.innerHTML=mouvements.map(m=>{
     const ie=m.type==='entree';
-    const uvc=(m.quantite_cartons||0)*(m.pcb_moment||1)*(m.uvc_paquet_moment||1);
+    const ctn=m.quantite_cartons||0;
+    const paq=paquets(ctn,m.produits?.pcb||m.pcb_moment||1);
     const d=new Date(m.created_at);
     const ds=d.toLocaleDateString('fr',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('fr',{hour:'2-digit',minute:'2-digit'});
     const loc=m.emplacement==='logistisud'?'<span class="loc-tag loc-logistisud">Logistisud</span>':'<span class="loc-tag loc-depot">Dépôt</span>';
@@ -689,12 +719,12 @@ function renderMouvTable(mouvements){
       <td style="font-weight:500">${m.produits?.designation||'—'}</td>
       <td>${m.produits?.taille?`<span class="badge badge-blue">${m.produits.taille}</span>`:'—'}</td>
       <td>${loc}</td>
-      <td style="font-weight:600;color:${ie?'var(--green)':'var(--red)'}">${ie?'+':'−'}${m.quantite_cartons}</td>
-      <td style="color:${ie?'var(--green)':'var(--red)'}">${ie?'+':'−'}${uvc.toLocaleString('fr')}</td>
+      <td style="font-weight:600;color:${ie?'var(--green)':'var(--red)'}">${ie?'+':'−'}${ctn} ctn</td>
+      <td style="color:${ie?'var(--green)':'var(--red)'}">${ie?'+':'−'}${paq} paq</td>
       <td class="mono">${m.numero_lot||'—'}</td>
       <td class="mono">${m.dlc_lot||'—'}</td>
       <td>${m.canal?`<span class="badge ${m.canal==='E-COM'?'badge-blue':'badge-amber'}">${m.canal}</span>`:'—'}</td>
-      <td style="color:var(--text2)">${m.client||'—'}</td>
+      <td>${m.client||'—'}</td>
       <td class="mono">${m.reference_bl||'—'}</td>
       <td class="mono" style="color:var(--text3)">${ds}</td>
     </tr>`;
@@ -706,6 +736,8 @@ function renderHistoryDash(mouvements){
   if(!mouvements.length){el.innerHTML='<div class="empty">Aucun mouvement</div>';return;}
   el.innerHTML=mouvements.map(m=>{
     const ie=m.type==='entree';
+    const ctn=m.quantite_cartons||0;
+    const paq=paquets(ctn,m.produits?.pcb||1);
     const d=new Date(m.created_at);
     const ds=d.toLocaleDateString('fr',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('fr',{hour:'2-digit',minute:'2-digit'});
     return `<div class="history-item">
@@ -714,7 +746,7 @@ function renderHistoryDash(mouvements){
         <div class="h-prod">${m.produits?.designation||'—'}${m.produits?.taille?' '+m.produits.taille:''}</div>
         <div class="h-detail">${ie?'Entrée':'Sortie'} · ${m.numero_lot||m.reference_bl||'—'}${m.client?' · '+m.client:''}</div>
       </div>
-      <div class="h-qty" style="color:${ie?'var(--green)':'var(--red)'}">${ie?'+':'−'}${m.quantite_cartons} ctn</div>
+      <div class="h-qty" style="color:${ie?'var(--green)':'var(--red)'}">${ie?'+':'−'}${ctn} ctn / ${paq} paq</div>
       <div class="h-date">${ds}</div>
     </div>`;
   }).join('');
@@ -724,50 +756,61 @@ function renderAlerts(produits){
   const alertes=produits.filter(p=>p.seuil_alerte&&((p.qte_depot||0)+(p.qte_logistisud||0))<=p.seuil_alerte&&p.statut!=='Inactif');
   const el=document.getElementById('alerts-list');
   if(!alertes.length){el.innerHTML='<div class="empty">Aucune alerte</div>';return;}
-  el.innerHTML=alertes.map(p=>`<div class="history-item">
-    <div class="h-icon h-sortie">!</div>
-    <div class="h-info">
-      <div class="h-prod">${p.designation}${p.taille?' '+p.taille:''}</div>
-      <div class="h-detail">${(p.qte_depot||0)+(p.qte_logistisud||0)} cartons · Seuil: ${p.seuil_alerte}</div>
-    </div>
-    <div class="h-qty" style="color:var(--red)">Seuil: ${p.seuil_alerte}</div>
-  </div>`).join('');
+  el.innerHTML=alertes.map(p=>{
+    const ctn=(p.qte_depot||0)+(p.qte_logistisud||0);
+    return `<div class="history-item">
+      <div class="h-icon h-sortie">!</div>
+      <div class="h-info">
+        <div class="h-prod">${p.designation}${p.taille?' '+p.taille:''}</div>
+        <div class="h-detail">${ctn} ctn · ${paquets(ctn,p.pcb)} paquets · Seuil: ${p.seuil_alerte} ctn</div>
+      </div>
+      <div class="h-qty" style="color:var(--red)">${ctn} ctn</div>
+    </div>`;
+  }).join('');
 }
 
 function fillSelects(p){
-  const opts=p.filter(x=>x.statut!=='Inactif').map(x=>`<option value="${x.id}" data-pcb="${x.pcb}" data-uvc="${x.uvc_paquet||1}">${x.designation}${x.taille?' '+x.taille:''} (${x.reference||x.id})</option>`).join('');
+  const opts=p.filter(x=>x.statut!=='Inactif').map(x=>`<option value="${x.id}" data-pcb="${x.pcb||1}">${x.designation}${x.taille?' '+x.taille:''} — PCB ${x.pcb||'?'}</option>`).join('');
   ['entree-produit','sortie-produit'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<option value="">Sélectionner...</option>'+opts;});
 }
 
 function fillTCSelect(tc){
-  const opts=tc.filter(t=>t.etape!=='CLO').map(t=>`<option value="${t.id}">${t.ref_li||'—'} (${t.fournisseur||''})</option>`).join('');
+  const opts=tc.filter(t=>t.etape!=='CLO').map(t=>`<option value="${t.id}">${t.ref_li} (${t.fournisseur||''})</option>`).join('');
   const el=document.getElementById('entree-tc-ref');if(el)el.innerHTML='<option value="">Aucun</option>'+opts;
 }
 
-function getSelOpt(id){const s=document.getElementById(id);return s?s.options[s.selectedIndex]:null;}
+function getPCB(selectId){
+  const s=document.getElementById(selectId);
+  const opt=s?s.options[s.selectedIndex]:null;
+  return opt?parseInt(opt.dataset.pcb)||1:1;
+}
+
 function updateEntreeCalc(){
-  const opt=getSelOpt('entree-produit');const qte=parseInt(document.getElementById('entree-qte').value)||0;
-  const pcb=opt?parseInt(opt.dataset.pcb)||1:1;const uvc=opt?parseInt(opt.dataset.uvc)||1:1;
-  const c=document.getElementById('entree-uvc-info');
-  if(opt&&opt.value&&qte>0){c.style.display='block';c.textContent=`= ${(qte*pcb*uvc).toLocaleString('fr')} UVC (${qte} ctn × ${pcb} paquets × ${uvc} UVC/paquet)`;}
+  const qte=parseInt(document.getElementById('entree-qte').value)||0;
+  const pcb=getPCB('entree-produit');
+  const sel=document.getElementById('entree-produit');
+  const c=document.getElementById('entree-calc');
+  if(sel.value&&qte>0){c.style.display='block';c.textContent=`${qte} carton${qte>1?'s':''} × ${pcb} paquets/carton = ${qte*pcb} paquets`;}
   else c.style.display='none';
 }
+
 function updateSortieCalc(){
-  const opt=getSelOpt('sortie-produit');const qte=parseInt(document.getElementById('sortie-qte').value)||0;
-  const pcb=opt?parseInt(opt.dataset.pcb)||1:1;const uvc=opt?parseInt(opt.dataset.uvc)||1:1;
-  document.getElementById('sortie-uvc-display').value=qte>0?(qte*pcb*uvc).toLocaleString('fr')+' UVC':'';
+  const qte=parseInt(document.getElementById('sortie-qte').value)||0;
+  const pcb=getPCB('sortie-produit');
+  document.getElementById('sortie-paq-display').value=qte>0?`${qte*pcb} paquets`:'';
 }
-function updateDepotUVC(){
+
+function updateDepotCalc(){
   if(!currentDepotProduit)return;
   const qte=parseInt(document.getElementById('depot-sortie-qte').value)||0;
-  document.getElementById('depot-sortie-uvc').value=qte>0?(qte*(currentDepotProduit.pcb||1)*(currentDepotProduit.uvc_paquet||1)).toLocaleString('fr')+' UVC':'';
+  document.getElementById('depot-sortie-paq').value=qte>0?`${qte*(currentDepotProduit.pcb||1)} paquets`:'';
 }
 
 function openModalEntree(){document.getElementById('modal-entree').style.display='flex';}
 function openModalSortie(){document.getElementById('modal-sortie').style.display='flex';}
 function openModalProduit(){
   document.getElementById('produit-id').value='';
-  ['prod-designation','prod-reference','prod-ean','prod-pcb','prod-uvc-paquet','prod-seuil'].forEach(id=>document.getElementById(id).value='');
+  ['prod-designation','prod-reference','prod-ean','prod-pcb','prod-seuil'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('prod-taille').value='';document.getElementById('prod-statut').value='Disponible';
   document.getElementById('prod-modal-title').textContent='Nouveau produit';
   document.getElementById('modal-produit').style.display='flex';
@@ -784,7 +827,7 @@ function closeModalIfOutside(e,id){if(e.target.id===id)closeModal(id);}
 function openSortieDepot(prodId){
   currentDepotProduit=allProduits.find(p=>p.id===prodId);if(!currentDepotProduit)return;
   document.getElementById('sortie-depot-title').textContent='Sortie — '+currentDepotProduit.designation+(currentDepotProduit.taille?' ('+currentDepotProduit.taille+')':'');
-  ['depot-sortie-bl','depot-sortie-qte','depot-sortie-uvc','depot-sortie-client','depot-sortie-lot','depot-sortie-dlc','depot-sortie-remarque'].forEach(id=>document.getElementById(id).value='');
+  ['depot-sortie-bl','depot-sortie-qte','depot-sortie-paq','depot-sortie-client','depot-sortie-lot','depot-sortie-dlc','depot-sortie-remarque'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('modal-sortie-depot').style.display='flex';
 }
 function openEntreeFromTC(tcId){
@@ -802,7 +845,7 @@ async function validerEntree(){
   const produit=allProduits.find(p=>p.id==prodId);if(!produit)return;
   const{error:mvErr}=await sb.from('mouvements').insert({
     produit_id:parseInt(prodId),type:'entree',quantite_cartons:qte,
-    pcb_moment:produit.pcb||1,uvc_paquet_moment:produit.uvc_paquet||1,emplacement,
+    pcb_moment:produit.pcb||1,emplacement,
     numero_lot:document.getElementById('entree-lot').value||null,
     dlc_lot:document.getElementById('entree-dlc').value||null,
     remarque:document.getElementById('entree-remarque').value||null,
@@ -812,8 +855,9 @@ async function validerEntree(){
   const field=emplacement==='logistisud'?'qte_logistisud':'qte_depot';
   const{error:upErr}=await sb.from('produits').update({[field]:(produit[field]||0)+qte}).eq('id',parseInt(prodId));
   if(upErr){handleError(upErr);return;}
+  const paq=qte*(produit.pcb||1);
   closeModal('modal-entree');
-  showToast(`Entrée validée : +${qte} ctn → ${emplacement}`,'success');
+  showToast(`Entrée : +${qte} ctn → ${paq} paquets (${emplacement})`,'success');
   await loadProduits();await loadMouvements();
 }
 
@@ -825,10 +869,10 @@ async function validerSortie(){
   if(!prodId||!qte||!bl){showToast('Produit, quantité et N° BL requis','error');return;}
   const produit=allProduits.find(p=>p.id==prodId);if(!produit)return;
   const field=emplacement==='logistisud'?'qte_logistisud':'qte_depot';
-  if((produit[field]||0)<qte){showToast('Stock insuffisant !','error');return;}
+  if((produit[field]||0)<qte){showToast(`Stock insuffisant — seulement ${produit[field]||0} ctn à ${emplacement}`,'error');return;}
   const{error:mvErr}=await sb.from('mouvements').insert({
     produit_id:parseInt(prodId),type:'sortie',quantite_cartons:qte,
-    pcb_moment:produit.pcb||1,uvc_paquet_moment:produit.uvc_paquet||1,emplacement,
+    pcb_moment:produit.pcb||1,emplacement,
     numero_lot:document.getElementById('sortie-lot').value||null,
     dlc_lot:document.getElementById('sortie-dlc-lot').value||null,
     canal:document.getElementById('sortie-canal').value,
@@ -839,7 +883,7 @@ async function validerSortie(){
   if(mvErr){handleError(mvErr);return;}
   const{error:upErr}=await sb.from('produits').update({[field]:(produit[field]||0)-qte}).eq('id',parseInt(prodId));
   if(upErr){handleError(upErr);return;}
-  closeModal('modal-sortie');showToast(`Sortie validée : −${qte} ctn → BL ${bl}`,'success');
+  closeModal('modal-sortie');showToast(`Sortie : −${qte} ctn → BL ${bl}`,'success');
   await loadProduits();await loadMouvements();
 }
 
@@ -848,11 +892,11 @@ async function validerSortieDepot(){
   const qte=parseInt(document.getElementById('depot-sortie-qte').value);
   const bl=document.getElementById('depot-sortie-bl').value;
   if(!qte||!bl){showToast('Quantité et N° BL requis','error');return;}
-  if((currentDepotProduit.qte_depot||0)<qte){showToast('Stock insuffisant au dépôt !','error');return;}
+  if((currentDepotProduit.qte_depot||0)<qte){showToast(`Stock insuffisant — seulement ${currentDepotProduit.qte_depot||0} ctn au dépôt`,'error');return;}
   const{error:mvErr}=await sb.from('mouvements').insert({
     produit_id:currentDepotProduit.id,type:'sortie',quantite_cartons:qte,
-    pcb_moment:currentDepotProduit.pcb||1,uvc_paquet_moment:currentDepotProduit.uvc_paquet||1,
-    emplacement:'depot',numero_lot:document.getElementById('depot-sortie-lot').value||null,
+    pcb_moment:currentDepotProduit.pcb||1,emplacement:'depot',
+    numero_lot:document.getElementById('depot-sortie-lot').value||null,
     dlc_lot:document.getElementById('depot-sortie-dlc').value||null,
     canal:document.getElementById('depot-sortie-canal').value,
     client:document.getElementById('depot-sortie-client').value||null,
@@ -862,7 +906,7 @@ async function validerSortieDepot(){
   if(mvErr){handleError(mvErr);return;}
   const{error:upErr}=await sb.from('produits').update({qte_depot:(currentDepotProduit.qte_depot||0)-qte}).eq('id',currentDepotProduit.id);
   if(upErr){handleError(upErr);return;}
-  closeModal('modal-sortie-depot');showToast(`Sortie validée : −${qte} cartons`,'success');
+  closeModal('modal-sortie-depot');showToast(`Sortie : −${qte} ctn / −${qte*(currentDepotProduit.pcb||1)} paquets`,'success');
   await loadProduits();await loadMouvements();
 }
 
@@ -926,10 +970,11 @@ async function saveProduit(){
   const designation=document.getElementById('prod-designation').value.trim();
   const pcb=parseInt(document.getElementById('prod-pcb').value);
   if(!designation||!pcb){showToast('Désignation et PCB requis','error');return;}
-  const data={designation,reference:document.getElementById('prod-reference').value.trim()||null,
+  const data={designation,
+    reference:document.getElementById('prod-reference').value.trim()||null,
     taille:document.getElementById('prod-taille').value||null,
     ean:document.getElementById('prod-ean').value.trim()||null,
-    pcb,uvc_paquet:parseInt(document.getElementById('prod-uvc-paquet').value)||1,
+    pcb,
     seuil_alerte:parseInt(document.getElementById('prod-seuil').value)||null,
     statut:document.getElementById('prod-statut').value};
   const editId=document.getElementById('produit-id').value;
@@ -948,7 +993,6 @@ function editProduit(id){
   document.getElementById('prod-taille').value=p.taille||'';
   document.getElementById('prod-ean').value=p.ean||'';
   document.getElementById('prod-pcb').value=p.pcb||'';
-  document.getElementById('prod-uvc-paquet').value=p.uvc_paquet||'';
   document.getElementById('prod-seuil').value=p.seuil_alerte||'';
   document.getElementById('prod-statut').value=p.statut;
   document.getElementById('prod-modal-title').textContent='Modifier — '+p.designation+(p.taille?' '+p.taille:'');
@@ -972,8 +1016,11 @@ function filterDepot(){
 }
 
 function exportCSV(){
-  const h=['Désignation','Taille','Référence','EAN','PCB','UVC/paquet','Dépôt (ctn)','Logistisud (ctn)','Total UVC','Statut','DLC','Seuil'];
-  const rows=allProduits.map(p=>{const t=(p.qte_depot||0)+(p.qte_logistisud||0);return[p.designation,p.taille||'',p.reference||'',p.ean||'',p.pcb||'',p.uvc_paquet||'',p.qte_depot||0,p.qte_logistisud||0,t*(p.pcb||1)*(p.uvc_paquet||1),p.statut,p.dlc||'',p.seuil_alerte||''];});
+  const h=['Désignation','Taille','Référence','EAN','PCB','Dépôt (ctn)','Dépôt (paquets)','Logistisud (ctn)','Logistisud (paquets)','Total (ctn)','Total (paquets)','Statut','Seuil (ctn)'];
+  const rows=allProduits.map(p=>{
+    const d=p.qte_depot||0,l=p.qte_logistisud||0,t=d+l;
+    return[p.designation,p.taille||'',p.reference||'',p.ean||'',p.pcb||'',d,paquets(d,p.pcb),l,paquets(l,p.pcb),t,paquets(t,p.pcb),p.statut,p.seuil_alerte||''];
+  });
   const csv=[h,...rows].map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
   const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
   const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='flowstock_export.csv';a.click();URL.revokeObjectURL(url);
@@ -1005,9 +1052,7 @@ function showToast(msg,type='success'){
 
 function handleError(e){
   console.error(e);
-  const msg=e.message||'Erreur inconnue';
-  if(msg.includes('does not exist')||msg.includes('relation')){showToast('Table manquante — relancer le SQL Supabase','error');}
-  else showToast('Erreur: '+msg.substring(0,60),'error');
+  showToast('Erreur: '+(e.message||'inconnue').substring(0,60),'error');
 }
 </script>
 </body>
