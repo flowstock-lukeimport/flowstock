@@ -3,400 +3,302 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FLOWSTOCK v2 — Gestion de stock</title>
+<title>FLOWSTOCK — Luke Import</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root {
-  --bg: #0f1117;
-  --bg2: #161820;
-  --bg3: #1e2028;
-  --bg4: #252730;
-  --border: rgba(255,255,255,0.07);
-  --border2: rgba(255,255,255,0.12);
-  --text: #f0f0f0;
-  --text2: #9a9db0;
-  --text3: #5a5d70;
-  --green: #00d97e;
-  --green-dim: rgba(0,217,126,0.12);
-  --green-border: rgba(0,217,126,0.25);
-  --amber: #f5a623;
-  --amber-dim: rgba(245,166,35,0.12);
-  --red: #ff5c5c;
-  --red-dim: rgba(255,92,92,0.12);
-  --blue: #4d9fff;
-  --blue-dim: rgba(77,159,255,0.12);
-  --radius: 10px;
-  --radius-lg: 14px;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; }
-
-/* LOGIN */
-.login-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 999; }
-.login-box { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--radius-lg); padding: 36px 32px; width: 100%; max-width: 360px; }
-.login-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; justify-content: center; }
-.login-logo-icon { width: 36px; height: 36px; background: var(--green); border-radius: 9px; display: flex; align-items: center; justify-content: center; }
-.login-logo-text { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
-.login-logo-text span { color: var(--green); }
-.login-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; text-align: center; }
-.login-sub { font-size: 13px; color: var(--text3); text-align: center; margin-bottom: 24px; }
-.login-input-wrap { position: relative; margin-bottom: 10px; }
-.login-input-wrap input { width: 100%; padding: 11px 14px; background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--radius); color: var(--text); font-size: 14px; font-family: inherit; outline: none; transition: border-color 0.15s; letter-spacing: 2px; }
-.login-input-wrap input:focus { border-color: var(--green); }
-.login-input-wrap input.error { border-color: var(--red); }
-.login-error { font-size: 12px; color: var(--red); margin-bottom: 12px; min-height: 16px; text-align: center; }
-.login-btn { width: 100%; padding: 11px; background: var(--green); color: #0a0a0a; border: none; border-radius: var(--radius); font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; transition: background 0.15s; margin-top: 4px; }
-.login-btn:hover { background: #00c070; }
-.login-footer { font-size: 11px; color: var(--text3); text-align: center; margin-top: 20px; }
-
-/* LAYOUT */
-.app { display: flex; height: 100vh; overflow: hidden; }
-.sidebar { width: 220px; min-width: 220px; background: var(--bg2); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px 0; }
-.main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
-
-/* SIDEBAR */
-.logo { padding: 0 20px 24px; display: flex; align-items: center; gap: 10px; }
-.logo-icon { width: 32px; height: 32px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-.logo-icon svg { width: 16px; height: 16px; }
-.logo-text { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; }
-.logo-text span { color: var(--green); }
-
-.nav-section { padding: 0 12px; margin-bottom: 4px; }
-.nav-label { font-size: 10px; font-weight: 600; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; padding: 8px 8px 4px; }
-.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--radius); cursor: pointer; color: var(--text2); font-size: 13.5px; transition: all 0.15s; margin-bottom: 1px; }
-.nav-item:hover { background: var(--bg3); color: var(--text); }
-.nav-item.active { background: var(--green-dim); color: var(--green); border: 1px solid var(--green-border); }
-.nav-item svg { width: 15px; height: 15px; flex-shrink: 0; }
-.nav-badge { margin-left: auto; background: var(--red); color: #fff; font-size: 10px; font-weight: 600; border-radius: 10px; padding: 1px 6px; }
-
-.sidebar-footer { margin-top: auto; padding: 16px 20px 0; border-top: 1px solid var(--border); }
-.role-selector { display: flex; background: var(--bg3); border-radius: var(--radius); padding: 3px; gap: 3px; }
-.role-btn { flex: 1; padding: 6px 8px; border-radius: 8px; font-size: 12px; text-align: center; cursor: pointer; color: var(--text2); transition: all 0.15s; }
-.role-btn.active { background: var(--bg4); color: var(--text); font-weight: 500; }
-
-/* TOPBAR */
-.topbar { display: flex; align-items: center; padding: 16px 24px; border-bottom: 1px solid var(--border); gap: 12px; background: var(--bg); position: sticky; top: 0; z-index: 10; }
-.topbar-title { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; }
-.topbar-sub { font-size: 13px; color: var(--text3); margin-left: 2px; }
-.topbar-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
-.search-box { display: flex; align-items: center; gap: 8px; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 7px 12px; width: 240px; }
-.search-box svg { width: 14px; height: 14px; color: var(--text3); flex-shrink: 0; }
-.search-box input { background: none; border: none; outline: none; color: var(--text); font-size: 13px; font-family: inherit; width: 100%; }
-.search-box input::placeholder { color: var(--text3); }
-
-/* BUTTONS */
-.btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--radius); font-size: 13px; font-family: inherit; cursor: pointer; border: 1px solid var(--border2); background: var(--bg3); color: var(--text); transition: all 0.15s; font-weight: 500; }
-.btn:hover { background: var(--bg4); border-color: var(--border2); }
-.btn-green { background: var(--green); color: #0a0a0a; border-color: var(--green); font-weight: 600; }
-.btn-green:hover { background: #00c070; }
-.btn-sm { padding: 5px 10px; font-size: 12px; }
-.btn svg { width: 14px; height: 14px; }
-
-/* CONTENT */
-.content { padding: 24px; flex: 1; }
-
-/* METRICS */
-.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
-.metric-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; }
-.metric-label { font-size: 12px; color: var(--text3); margin-bottom: 8px; font-weight: 500; letter-spacing: 0.2px; }
-.metric-value { font-size: 26px; font-weight: 600; letter-spacing: -0.5px; line-height: 1; margin-bottom: 4px; }
-.metric-sub { font-size: 12px; color: var(--text3); }
-.metric-card.alert { border-color: var(--red-dim); }
-.metric-card.alert .metric-value { color: var(--red); }
-.metric-card.warn { border-color: var(--amber-dim); }
-.metric-card.warn .metric-value { color: var(--amber); }
-
-/* ALERT BANNER */
-.alert-banner { display: flex; align-items: center; gap: 10px; background: var(--amber-dim); border: 1px solid rgba(245,166,35,0.2); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 20px; font-size: 13px; color: var(--amber); }
-.alert-banner svg { width: 15px; height: 15px; flex-shrink: 0; }
-
-/* TABLES */
-.table-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
-table { width: 100%; border-collapse: collapse; }
-thead th { background: var(--bg3); padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 0.6px; text-transform: uppercase; border-bottom: 1px solid var(--border); white-space: nowrap; }
-tbody td { padding: 11px 14px; border-bottom: 1px solid var(--border); color: var(--text); font-size: 13px; vertical-align: middle; }
-tbody tr:last-child td { border-bottom: none; }
-tbody tr:hover td { background: var(--bg3); }
-.mono { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text2); }
-
-/* STATUS BADGES */
-.badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-.badge::before { content:''; width:5px; height:5px; border-radius:50%; }
-.badge-dispo { background: var(--green-dim); color: var(--green); border: 1px solid var(--green-border); }
-.badge-dispo::before { background: var(--green); }
-.badge-cmd { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,166,35,0.25); }
-.badge-cmd::before { background: var(--amber); }
-.badge-rupture { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255,92,92,0.25); }
-.badge-rupture::before { background: var(--red); }
-.badge-inactif { background: var(--bg4); color: var(--text3); border: 1px solid var(--border); }
-.badge-inactif::before { background: var(--text3); }
-
-/* TWO COL */
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
-
-/* CARDS */
-.card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; }
-.card-title { font-size: 13px; font-weight: 600; color: var(--text2); margin-bottom: 14px; letter-spacing: 0.2px; text-transform: uppercase; font-size: 11px; }
-
-/* FORM */
-.form-group { margin-bottom: 14px; }
-.form-group label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 6px; font-weight: 500; }
-.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 9px 12px; background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--radius); color: var(--text); font-size: 13px; font-family: inherit; outline: none; transition: border-color 0.15s; }
-.form-group input:focus, .form-group select:focus { border-color: var(--green); }
-.form-group select option { background: var(--bg3); }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.uvc-calc { background: var(--green-dim); border: 1px solid var(--green-border); border-radius: var(--radius); padding: 10px 14px; font-size: 13px; color: var(--green); margin-bottom: 14px; display: none; }
-
-/* HISTORY */
-.history-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
-.history-item:last-child { border-bottom: none; }
-.h-icon { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
-.h-entree { background: var(--green-dim); color: var(--green); }
-.h-sortie { background: var(--red-dim); color: var(--red); }
-.h-info { flex: 1; min-width: 0; }
-.h-prod { font-weight: 500; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.h-detail { font-size: 11px; color: var(--text3); margin-top: 1px; }
-.h-qty { font-weight: 600; font-size: 13px; white-space: nowrap; }
-.h-date { font-size: 11px; color: var(--text3); white-space: nowrap; margin-left: 8px; }
-
-/* DEPOT VIEW */
-.depot-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 10px; transition: border-color 0.15s; }
-.depot-card:hover { border-color: var(--border2); }
-.depot-card.low-stock { border-color: rgba(255,92,92,0.3); }
-.depot-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-.depot-name { font-size: 15px; font-weight: 600; }
-.depot-ref { font-size: 11px; color: var(--text3); margin-top: 2px; font-family: 'DM Mono', monospace; }
-.depot-uvc { text-align: right; }
-.depot-uvc-num { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
-.depot-uvc-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
-.depot-meta { font-size: 12px; color: var(--text3); margin-bottom: 12px; }
-.depot-actions { display: flex; gap: 8px; }
-.depot-btn-sortie { flex: 1; padding: 10px; border-radius: var(--radius); background: var(--green); color: #0a0a0a; font-size: 13px; font-weight: 700; cursor: pointer; border: none; font-family: inherit; transition: background 0.15s; }
-.depot-btn-sortie:hover { background: #00c070; }
-.depot-btn-detail { padding: 10px 14px; border-radius: var(--radius); background: var(--bg3); color: var(--text2); font-size: 13px; cursor: pointer; border: 1px solid var(--border); font-family: inherit; }
-
-/* MODAL */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
-.modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--radius-lg); padding: 24px; width: 100%; max-width: 480px; }
-.modal-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-.modal-actions { display: flex; gap: 10px; margin-top: 20px; }
-.modal-actions .btn { flex: 1; justify-content: center; }
-
-/* TABS */
-.tabs { display: flex; gap: 4px; background: var(--bg3); border-radius: var(--radius); padding: 3px; margin-bottom: 20px; }
-.tab-btn { flex: 1; padding: 7px 12px; border-radius: 8px; font-size: 13px; text-align: center; cursor: pointer; color: var(--text2); transition: all 0.15s; font-weight: 500; border: none; background: none; font-family: inherit; }
-.tab-btn.active { background: var(--bg); color: var(--text); border: 1px solid var(--border2); }
-
-/* VIEWS */
-.view { display: none; }
-.view.active { display: block; }
-
-/* CHIPS */
-.chips { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
-.chip { padding: 5px 12px; border-radius: 20px; font-size: 12px; border: 1px solid var(--border); cursor: pointer; background: transparent; color: var(--text2); font-family: inherit; transition: all 0.15s; }
-.chip:hover { border-color: var(--border2); color: var(--text); }
-.chip.active { background: var(--bg3); color: var(--text); border-color: var(--border2); font-weight: 500; }
-
-/* EMPTY STATE */
-.empty { text-align: center; padding: 40px; color: var(--text3); }
-.empty svg { width: 40px; height: 40px; margin: 0 auto 12px; opacity: 0.3; display: block; }
-
-/* TOAST */
-.toast { position: fixed; bottom: 24px; right: 24px; background: var(--bg4); border: 1px solid var(--border2); border-radius: var(--radius); padding: 12px 16px; font-size: 13px; z-index: 200; display: flex; align-items: center; gap: 10px; max-width: 320px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); transform: translateY(80px); opacity: 0; transition: all 0.3s; }
-.toast.show { transform: translateY(0); opacity: 1; }
-.toast.success { border-color: var(--green-border); }
-.toast.error { border-color: rgba(255,92,92,0.3); }
-.toast-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.toast.success .toast-dot { background: var(--green); }
-.toast.error .toast-dot { background: var(--red); }
-
-/* LOADING */
-.loading { display: flex; align-items: center; justify-content: center; padding: 40px; color: var(--text3); gap: 10px; }
-.spinner { width: 18px; height: 18px; border: 2px solid var(--border2); border-top-color: var(--green); border-radius: 50%; animation: spin 0.7s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* MOBILE - Entrepôt */
-@media (max-width: 768px) {
-  .sidebar { display: none; }
-  .metrics { grid-template-columns: 1fr 1fr; }
-  .two-col, .three-col, .form-row { grid-template-columns: 1fr; }
-  .content { padding: 16px; }
-  table { font-size: 12px; }
-  thead th, tbody td { padding: 8px 10px; }
-}
-
-.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-.section-title { font-size: 14px; font-weight: 600; }
+:root{--bg:#0f1117;--bg2:#161820;--bg3:#1e2028;--bg4:#252730;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--text:#f0f0f0;--text2:#9a9db0;--text3:#5a5d70;--green:#00d97e;--green-dim:rgba(0,217,126,0.12);--green-border:rgba(0,217,126,0.25);--amber:#f5a623;--amber-dim:rgba(245,166,35,0.12);--red:#ff5c5c;--red-dim:rgba(255,92,92,0.12);--blue:#4d9fff;--blue-dim:rgba(77,159,255,0.12);--purple:#a78bfa;--purple-dim:rgba(167,139,250,0.12);--radius:10px;--radius-lg:14px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;}
+.login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999;}
+.login-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:36px 32px;width:100%;max-width:360px;}
+.login-logo{display:flex;align-items:center;gap:10px;margin-bottom:28px;justify-content:center;}
+.login-logo-icon{width:36px;height:36px;background:var(--green);border-radius:9px;display:flex;align-items:center;justify-content:center;}
+.login-logo-text{font-size:20px;font-weight:700;letter-spacing:-0.5px;}
+.login-logo-text span{color:var(--green);}
+.login-title{font-size:15px;font-weight:600;margin-bottom:6px;text-align:center;}
+.login-sub{font-size:13px;color:var(--text3);text-align:center;margin-bottom:24px;}
+.login-input-wrap input{width:100%;padding:11px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color 0.15s;letter-spacing:2px;}
+.login-input-wrap input:focus{border-color:var(--green);}
+.login-input-wrap input.error{border-color:var(--red);}
+.login-error{font-size:12px;color:var(--red);margin:8px 0 4px;min-height:16px;text-align:center;}
+.login-btn{width:100%;padding:11px;background:var(--green);color:#0a0a0a;border:none;border-radius:var(--radius);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:4px;}
+.login-btn:hover{background:#00c070;}
+.login-footer{font-size:11px;color:var(--text3);text-align:center;margin-top:20px;}
+.app{display:flex;height:100vh;overflow:hidden;}
+.sidebar{width:220px;min-width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 0;}
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+.logo{padding:0 20px 24px;display:flex;align-items:center;gap:10px;}
+.logo-icon{width:32px;height:32px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.logo-text{font-size:16px;font-weight:600;letter-spacing:-0.3px;}
+.logo-text span{color:var(--green);}
+.nav-section{padding:0 12px;margin-bottom:4px;}
+.nav-label{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;padding:8px 8px 4px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius);cursor:pointer;color:var(--text2);font-size:13.5px;transition:all 0.15s;margin-bottom:1px;}
+.nav-item:hover{background:var(--bg3);color:var(--text);}
+.nav-item.active{background:var(--green-dim);color:var(--green);border:1px solid var(--green-border);}
+.nav-item svg{width:15px;height:15px;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:600;border-radius:10px;padding:1px 6px;}
+.sidebar-footer{margin-top:auto;padding:16px 20px 0;border-top:1px solid var(--border);}
+.role-selector{display:flex;background:var(--bg3);border-radius:var(--radius);padding:3px;gap:3px;}
+.role-btn{flex:1;padding:6px 8px;border-radius:8px;font-size:12px;text-align:center;cursor:pointer;color:var(--text2);transition:all 0.15s;border:none;background:none;font-family:inherit;}
+.role-btn.active{background:var(--bg4);color:var(--text);font-weight:500;}
+.topbar{display:flex;align-items:center;padding:16px 24px;border-bottom:1px solid var(--border);gap:12px;background:var(--bg);position:sticky;top:0;z-index:10;}
+.topbar-title{font-size:16px;font-weight:600;letter-spacing:-0.3px;}
+.topbar-sub{font-size:13px;color:var(--text3);margin-left:2px;}
+.topbar-actions{margin-left:auto;display:flex;gap:8px;align-items:center;}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:7px 12px;width:240px;}
+.search-box svg{width:14px;height:14px;color:var(--text3);flex-shrink:0;}
+.search-box input{background:none;border:none;outline:none;color:var(--text);font-size:13px;font-family:inherit;width:100%;}
+.search-box input::placeholder{color:var(--text3);}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius);font-size:13px;font-family:inherit;cursor:pointer;border:1px solid var(--border2);background:var(--bg3);color:var(--text);transition:all 0.15s;font-weight:500;}
+.btn:hover{background:var(--bg4);}
+.btn-green{background:var(--green);color:#0a0a0a;border-color:var(--green);font-weight:600;}
+.btn-green:hover{background:#00c070;}
+.btn-blue{background:var(--blue-dim);color:var(--blue);border-color:rgba(77,159,255,0.25);}
+.btn-sm{padding:5px 10px;font-size:12px;}
+.content{padding:24px;flex:1;}
+.view{display:none;}
+.view.active{display:block;}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+.metric-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;}
+.metric-label{font-size:12px;color:var(--text3);margin-bottom:8px;font-weight:500;}
+.metric-value{font-size:26px;font-weight:600;letter-spacing:-0.5px;line-height:1;margin-bottom:4px;}
+.metric-sub{font-size:12px;color:var(--text3);}
+.metric-card.alert .metric-value{color:var(--red);}
+.metric-card.warn .metric-value{color:var(--amber);}
+.metric-card.info .metric-value{color:var(--blue);}
+.alert-banner{display:flex;align-items:center;gap:10px;background:var(--amber-dim);border:1px solid rgba(245,166,35,0.2);border-radius:var(--radius);padding:10px 14px;margin-bottom:20px;font-size:13px;color:var(--amber);}
+.table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;}
+.table-scroll{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead th{background:var(--bg3);padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--text3);letter-spacing:0.6px;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap;}
+tbody td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text);font-size:13px;vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:var(--bg3);}
+.mono{font-family:'DM Mono',monospace;font-size:12px;color:var(--text2);}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;}
+.badge-green{background:var(--green-dim);color:var(--green);border:1px solid var(--green-border);}
+.badge-green::before{background:var(--green);}
+.badge-amber{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,166,35,0.25);}
+.badge-amber::before{background:var(--amber);}
+.badge-red{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,92,92,0.25);}
+.badge-red::before{background:var(--red);}
+.badge-blue{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(77,159,255,0.25);}
+.badge-blue::before{background:var(--blue);}
+.badge-purple{background:var(--purple-dim);color:var(--purple);border:1px solid rgba(167,139,250,0.25);}
+.badge-purple::before{background:var(--purple);}
+.badge-gray{background:var(--bg4);color:var(--text3);border:1px solid var(--border);}
+.badge-gray::before{background:var(--text3);}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;}
+.card-title{font-size:11px;font-weight:600;color:var(--text3);margin-bottom:14px;letter-spacing:0.6px;text-transform:uppercase;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:12px;color:var(--text2);margin-bottom:6px;font-weight:500;}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:border-color 0.15s;}
+.form-group input:focus,.form-group select:focus{border-color:var(--green);}
+.form-group select option{background:var(--bg3);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.uvc-info{background:var(--green-dim);border:1px solid var(--green-border);border-radius:var(--radius);padding:10px 14px;font-size:13px;color:var(--green);margin-bottom:14px;display:none;}
+.history-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+.history-item:last-child{border-bottom:none;}
+.h-icon{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}
+.h-entree{background:var(--green-dim);color:var(--green);}
+.h-sortie{background:var(--red-dim);color:var(--red);}
+.h-info{flex:1;min-width:0;}
+.h-prod{font-weight:500;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.h-detail{font-size:11px;color:var(--text3);margin-top:1px;}
+.h-qty{font-weight:600;font-size:13px;white-space:nowrap;}
+.h-date{font-size:11px;color:var(--text3);white-space:nowrap;margin-left:8px;}
+.depot-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:10px;}
+.depot-card.low-stock{border-color:rgba(255,92,92,0.3);}
+.depot-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+.depot-name{font-size:15px;font-weight:600;}
+.depot-ref{font-size:11px;color:var(--text3);margin-top:2px;font-family:'DM Mono',monospace;}
+.depot-uvc-num{font-size:24px;font-weight:700;letter-spacing:-0.5px;text-align:right;}
+.depot-uvc-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;text-align:right;}
+.depot-meta{font-size:12px;color:var(--text3);margin-bottom:12px;}
+.depot-actions{display:flex;gap:8px;}
+.depot-btn-sortie{flex:1;padding:10px;border-radius:var(--radius);background:var(--green);color:#0a0a0a;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;}
+.depot-btn-detail{padding:10px 14px;border-radius:var(--radius);background:var(--bg3);color:var(--text2);font-size:13px;cursor:pointer;border:1px solid var(--border);font-family:inherit;}
+.tc-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:10px;transition:border-color 0.15s;}
+.tc-card:hover{border-color:var(--border2);}
+.tc-card.arrived{border-left:3px solid var(--green);}
+.tc-card.transit{border-left:3px solid var(--amber);}
+.tc-card.ordered{border-left:3px solid var(--blue);}
+.tc-card.closed{opacity:0.55;}
+.tc-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
+.tc-ref{font-size:14px;font-weight:600;}
+.tc-fournisseur{font-size:12px;color:var(--text3);margin-top:2px;}
+.tc-meta{display:flex;gap:16px;margin-bottom:10px;font-size:12px;flex-wrap:wrap;}
+.tc-meta-item{display:flex;flex-direction:column;gap:2px;}
+.tc-meta-label{color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:0.5px;}
+.tc-meta-value{color:var(--text);font-weight:500;}
+.tc-alerte{background:var(--red-dim);border:1px solid rgba(255,92,92,0.2);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--red);margin-bottom:10px;line-height:1.4;}
+.tc-actions{display:flex;gap:6px;flex-wrap:wrap;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:24px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;}
+.modal-title{font-size:16px;font-weight:600;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.modal-actions{display:flex;gap:10px;margin-top:20px;}
+.modal-actions .btn{flex:1;justify-content:center;}
+.chips{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;}
+.chip{padding:5px 12px;border-radius:20px;font-size:12px;border:1px solid var(--border);cursor:pointer;background:transparent;color:var(--text2);font-family:inherit;transition:all 0.15s;}
+.chip:hover{border-color:var(--border2);color:var(--text);}
+.chip.active{background:var(--bg3);color:var(--text);border-color:var(--border2);font-weight:500;}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--bg4);border:1px solid var(--border2);border-radius:var(--radius);padding:12px 16px;font-size:13px;z-index:200;display:flex;align-items:center;gap:10px;max-width:340px;box-shadow:0 8px 24px rgba(0,0,0,0.4);transform:translateY(80px);opacity:0;transition:all 0.3s;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{border-color:var(--green-border);}
+.toast.error{border-color:rgba(255,92,92,0.3);}
+.toast-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.toast.success .toast-dot{background:var(--green);}
+.toast.error .toast-dot{background:var(--red);}
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--text3);gap:10px;}
+.spinner{width:18px;height:18px;border:2px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.empty{text-align:center;padding:40px;color:var(--text3);}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.section-title{font-size:14px;font-weight:600;}
+.loc-tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.loc-depot{background:rgba(0,217,126,0.15);color:var(--green);}
+.loc-logistisud{background:rgba(77,159,255,0.15);color:var(--blue);}
+.tc-notify{background:var(--green-dim);border:1px solid var(--green-border);border-radius:var(--radius);padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.tc-notify-text{font-size:13px;color:var(--green);}
+.tc-notify-btn{padding:6px 14px;background:var(--green);color:#0a0a0a;border:none;border-radius:var(--radius);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;}
+@media(max-width:768px){.sidebar{display:none;}.metrics{grid-template-columns:1fr 1fr;}.two-col,.form-row{grid-template-columns:1fr;}.content{padding:16px;}}
 </style>
 </head>
 <body>
-
-<!-- LOGIN SCREEN -->
 <div class="login-screen" id="login-screen">
   <div class="login-box">
     <div class="login-logo">
-      <div class="login-logo-icon">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="2.5" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      </div>
+      <div class="login-logo-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="2.5" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
       <div class="login-logo-text">FLOW<span>STOCK</span></div>
     </div>
     <div class="login-title">Accès sécurisé</div>
-    <div class="login-sub">Entrez le mot de passe pour accéder à l'application</div>
-    <div class="login-input-wrap">
-      <input type="password" id="login-pwd" placeholder="Mot de passe" onkeydown="if(event.key==='Enter') checkLogin()">
-    </div>
+    <div class="login-sub">Luke Import — Gestion de stock</div>
+    <div class="login-input-wrap"><input type="password" id="login-pwd" placeholder="Mot de passe" onkeydown="if(event.key==='Enter')checkLogin()"></div>
     <div class="login-error" id="login-error"></div>
-    <button class="login-btn" onclick="checkLogin()">Accéder à FLOWSTOCK</button>
+    <button class="login-btn" onclick="checkLogin()">Accéder</button>
     <div class="login-footer">Usage interne — Luke Import</div>
   </div>
 </div>
 
 <div class="app" id="main-app" style="display:none">
-  <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="logo">
-      <div class="logo-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="2.5" stroke-linecap="round">
-          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
-        </svg>
-      </div>
+      <div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="2.5" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
       <div class="logo-text">FLOW<span>STOCK</span></div>
     </div>
-
     <div class="nav-section">
       <div class="nav-label">Principal</div>
-      <div class="nav-item active" onclick="showView('dashboard', this)">
+      <div class="nav-item active" onclick="showView('dashboard',this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-        Dashboard
-        <span class="nav-badge" id="alert-badge" style="display:none">0</span>
+        Dashboard<span class="nav-badge" id="alert-badge" style="display:none">0</span>
       </div>
-      <div class="nav-item" onclick="showView('stock', this)">
+      <div class="nav-item" onclick="showView('grille',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+        Grille TC<span class="nav-badge" id="tc-badge" style="display:none">0</span>
+      </div>
+      <div class="nav-item" onclick="showView('stock',this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
         Stock
       </div>
-      <div class="nav-item" onclick="showView('mouvements', this)">
+      <div class="nav-item" onclick="showView('mouvements',this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
         Mouvements
       </div>
-      <div class="nav-item" onclick="showView('conteneurs', this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
-        Conteneurs
-      </div>
     </div>
-
     <div class="nav-section">
       <div class="nav-label">Entrepôt</div>
-      <div class="nav-item" onclick="showView('depot', this)">
+      <div class="nav-item" onclick="showView('depot',this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
         Interface dépôt
       </div>
     </div>
-
     <div class="nav-section">
       <div class="nav-label">Config</div>
-      <div class="nav-item" onclick="showView('produits', this)">
+      <div class="nav-item" onclick="showView('produits',this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
         Produits
       </div>
     </div>
-
     <div class="sidebar-footer">
       <div style="font-size:11px;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600">Profil</div>
       <div class="role-selector">
-        <div class="role-btn active" id="role-bureau" onclick="setRole('bureau')">Bureau</div>
-        <div class="role-btn" id="role-depot" onclick="setRole('depot')">Dépôt</div>
+        <button class="role-btn active" id="role-bureau" onclick="setRole('bureau')">Bureau</button>
+        <button class="role-btn" id="role-depot" onclick="setRole('depot')">Dépôt</button>
       </div>
     </div>
   </div>
 
-  <!-- MAIN -->
   <div class="main">
-
     <!-- DASHBOARD -->
     <div id="view-dashboard" class="view active">
       <div class="topbar">
-        <div>
-          <div class="topbar-title">Dashboard</div>
-          <div class="topbar-sub">Vue d'ensemble du stock</div>
-        </div>
-        <div class="topbar-actions">
-          <button class="btn" onclick="exportCSV()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Exporter CSV
-          </button>
-          <button class="btn btn-green" onclick="openModalEntree()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Nouvelle entrée
-          </button>
-        </div>
+        <div><div class="topbar-title">Dashboard</div><div class="topbar-sub">Vue d'ensemble</div></div>
+        <div class="topbar-actions"><button class="btn btn-green" onclick="openModalEntree()">+ Entrée stock</button></div>
       </div>
       <div class="content">
         <div id="alert-banner-wrap"></div>
-        <div class="metrics" id="metrics-dash">
-          <div class="metric-card"><div class="metric-label">Références actives</div><div class="metric-value" id="m-refs">—</div><div class="metric-sub">produits en catalogue</div></div>
-          <div class="metric-card"><div class="metric-label">UVC disponibles</div><div class="metric-value" id="m-uvc">—</div><div class="metric-sub">unités en stock</div></div>
-          <div class="metric-card warn"><div class="metric-label">En commande</div><div class="metric-value" id="m-cmd">—</div><div class="metric-sub">conteneurs</div></div>
-          <div class="metric-card alert"><div class="metric-label">Alertes stock bas</div><div class="metric-value" id="m-alerte">—</div><div class="metric-sub">sous seuil d'alerte</div></div>
+        <div id="tc-notify-wrap"></div>
+        <div class="metrics">
+          <div class="metric-card"><div class="metric-label">Références actives</div><div class="metric-value" id="m-refs">—</div><div class="metric-sub">produits en stock</div></div>
+          <div class="metric-card"><div class="metric-label">UVC disponibles</div><div class="metric-value" id="m-uvc">—</div><div class="metric-sub">unités totales</div></div>
+          <div class="metric-card info"><div class="metric-label">TC en cours</div><div class="metric-value" id="m-tc">—</div><div class="metric-sub">conteneurs actifs</div></div>
+          <div class="metric-card alert"><div class="metric-label">Alertes stock bas</div><div class="metric-value" id="m-alerte">—</div><div class="metric-sub">sous seuil</div></div>
         </div>
         <div class="two-col">
-          <div class="card">
-            <div class="card-title">Alertes stock bas</div>
-            <div id="alerts-list"><div class="loading"><div class="spinner"></div> Chargement...</div></div>
-          </div>
-          <div class="card">
-            <div class="card-title">Derniers mouvements</div>
-            <div id="history-dash"><div class="loading"><div class="spinner"></div> Chargement...</div></div>
-          </div>
+          <div class="card"><div class="card-title">Alertes stock bas</div><div id="alerts-list"><div class="loading"><div class="spinner"></div></div></div></div>
+          <div class="card"><div class="card-title">Derniers mouvements</div><div id="history-dash"><div class="loading"><div class="spinner"></div></div></div></div>
         </div>
+      </div>
+    </div>
+
+    <!-- GRILLE TC -->
+    <div id="view-grille" class="view">
+      <div class="topbar">
+        <div><div class="topbar-title">Grille TC</div><div class="topbar-sub">Suivi des conteneurs</div></div>
+        <div class="topbar-actions">
+          <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="tc-search" placeholder="REF, fournisseur, N° TC..." oninput="filterTC()"></div>
+          <button class="btn btn-green" onclick="openModalTC()">+ Nouveau TC</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="chips" id="tc-chips">
+          <button class="chip active" onclick="filterTCByEtape('',this)">Tous</button>
+          <button class="chip" onclick="filterTCByEtape('INSTRU',this)">INSTRU</button>
+          <button class="chip" onclick="filterTCByEtape('PHOTOS',this)">PHOTOS</button>
+          <button class="chip" onclick="filterTCByEtape('DLR',this)">DLR</button>
+          <button class="chip" onclick="filterTCByEtape('CLO',this)">CLO</button>
+          <button class="chip" onclick="filterTCByEtape('OFFRE',this)">OFFRE</button>
+        </div>
+        <div id="tc-list"><div class="loading"><div class="spinner"></div> Chargement...</div></div>
       </div>
     </div>
 
     <!-- STOCK -->
     <div id="view-stock" class="view">
       <div class="topbar">
-        <div>
-          <div class="topbar-title">Stock</div>
-          <div class="topbar-sub">Catalogue produits</div>
-        </div>
+        <div><div class="topbar-title">Stock</div><div class="topbar-sub">Catalogue produits</div></div>
         <div class="topbar-actions">
-          <div class="search-box">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="stock-search" placeholder="Référence, désignation, EAN..." oninput="filterStock()">
-          </div>
+          <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="stock-search" placeholder="Référence, désignation, EAN..." oninput="filterStock()"></div>
           <button class="btn" onclick="exportCSV()">Exporter CSV</button>
           <button class="btn btn-green" onclick="openModalProduit()">+ Produit</button>
         </div>
       </div>
       <div class="content">
         <div class="chips" id="stock-chips">
-          <button class="chip active" onclick="filterByStatus('', this)">Tous</button>
-          <button class="chip" onclick="filterByStatus('Disponible', this)">Disponible</button>
-          <button class="chip" onclick="filterByStatus('En commande', this)">En commande</button>
-          <button class="chip" onclick="filterByStatus('Rupture', this)">Rupture</button>
-          <button class="chip" onclick="filterByStatus('Inactif', this)">Inactif</button>
+          <button class="chip active" onclick="filterByStatus('',this)">Tous</button>
+          <button class="chip" onclick="filterByStatus('Disponible',this)">Disponible</button>
+          <button class="chip" onclick="filterByStatus('En commande',this)">En commande</button>
+          <button class="chip" onclick="filterByStatus('Rupture',this)">Rupture</button>
+          <button class="chip" onclick="filterByStatus('Inactif',this)">Inactif</button>
         </div>
-        <div class="table-wrap">
+        <div class="table-wrap table-scroll">
           <table>
-            <thead>
-              <tr>
-                <th>Désignation</th>
-                <th>Référence</th>
-                <th>EAN</th>
-                <th>PCB</th>
-                <th>Stock (ctn)</th>
-                <th>UVC dispo</th>
-                <th>En commande</th>
-                <th>DLC</th>
-                <th>Seuil alerte</th>
-                <th>Statut</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="stock-table-body">
-              <tr><td colspan="11"><div class="loading"><div class="spinner"></div> Chargement...</div></td></tr>
-            </tbody>
+            <thead><tr><th>Désignation</th><th>Référence</th><th>Taille</th><th>EAN</th><th>PCB</th><th>UVC/paquet</th><th>Dépôt (ctn)</th><th>Logistisud (ctn)</th><th>Total UVC</th><th>En cde</th><th>DLC</th><th>Seuil</th><th>Statut</th><th></th></tr></thead>
+            <tbody id="stock-table-body"><tr><td colspan="14"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
           </table>
         </div>
       </div>
@@ -412,81 +314,26 @@ tbody tr:hover td { background: var(--bg3); }
         </div>
       </div>
       <div class="content">
-        <div class="table-wrap">
+        <div class="table-wrap table-scroll">
           <table>
-            <thead>
-              <tr>
-                <th>Type</th>
-                <th>Produit</th>
-                <th>Qté (ctn)</th>
-                <th>UVC</th>
-                <th>BL / Conteneur</th>
-                <th>Utilisateur</th>
-                <th>Date</th>
-                <th>Remarque</th>
-              </tr>
-            </thead>
-            <tbody id="mouv-table-body">
-              <tr><td colspan="8"><div class="loading"><div class="spinner"></div> Chargement...</div></td></tr>
-            </tbody>
+            <thead><tr><th>Type</th><th>Produit</th><th>Taille</th><th>Emplacement</th><th>Qté (ctn)</th><th>UVC</th><th>N° Lot / TC</th><th>DLC lot</th><th>Canal</th><th>Client</th><th>BL</th><th>Date</th></tr></thead>
+            <tbody id="mouv-table-body"><tr><td colspan="12"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <!-- CONTENEURS -->
-    <div id="view-conteneurs" class="view">
-      <div class="topbar">
-        <div class="topbar-title">Conteneurs</div>
-        <div class="topbar-actions">
-          <button class="btn btn-green" onclick="openModalConteneur()">+ Conteneur</button>
-        </div>
-      </div>
-      <div class="content">
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Référence</th>
-                <th>Statut</th>
-                <th>Date arrivée prévue</th>
-                <th>Remarque</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="cont-table-body">
-              <tr><td colspan="5"><div class="loading"><div class="spinner"></div> Chargement...</div></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- PRODUITS CONFIG -->
+    <!-- PRODUITS -->
     <div id="view-produits" class="view">
       <div class="topbar">
         <div class="topbar-title">Gestion produits</div>
-        <div class="topbar-actions">
-          <button class="btn btn-green" onclick="openModalProduit()">+ Nouveau produit</button>
-        </div>
+        <div class="topbar-actions"><button class="btn btn-green" onclick="openModalProduit()">+ Nouveau produit</button></div>
       </div>
       <div class="content">
-        <div class="table-wrap">
+        <div class="table-wrap table-scroll">
           <table>
-            <thead>
-              <tr>
-                <th>Désignation</th>
-                <th>Référence</th>
-                <th>EAN</th>
-                <th>PCB</th>
-                <th>Seuil alerte</th>
-                <th>Statut</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="prod-table-body">
-              <tr><td colspan="7"><div class="loading"><div class="spinner"></div> Chargement...</div></td></tr>
-            </tbody>
+            <thead><tr><th>Désignation</th><th>Référence</th><th>Taille</th><th>EAN</th><th>PCB</th><th>UVC/paquet</th><th>Seuil alerte</th><th>Statut</th><th></th></tr></thead>
+            <tbody id="prod-table-body"><tr><td colspan="9"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
           </table>
         </div>
       </div>
@@ -495,776 +342,672 @@ tbody tr:hover td { background: var(--bg3); }
     <!-- DEPOT -->
     <div id="view-depot" class="view">
       <div class="topbar">
-        <div>
-          <div class="topbar-title">Interface entrepôt</div>
-          <div class="topbar-sub">Saisie des sorties</div>
-        </div>
+        <div><div class="topbar-title">Interface entrepôt</div><div class="topbar-sub">Saisie des sorties</div></div>
         <div class="topbar-actions">
-          <div class="search-box" style="width:280px">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="depot-search" placeholder="Rechercher ou scanner EAN..." oninput="filterDepot()">
-          </div>
+          <div class="search-box" style="width:280px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="depot-search" placeholder="Rechercher ou scanner EAN..." oninput="filterDepot()"></div>
         </div>
       </div>
-      <div class="content">
-        <div id="depot-list"><div class="loading"><div class="spinner"></div> Chargement...</div></div>
-      </div>
+      <div class="content"><div id="depot-list"><div class="loading"><div class="spinner"></div></div></div></div>
     </div>
-
   </div>
 </div>
 
 <!-- MODAL ENTREE -->
 <div id="modal-entree" class="modal-overlay" style="display:none" onclick="closeModalIfOutside(event,'modal-entree')">
   <div class="modal">
-    <div class="modal-title">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Entrée de stock
+    <div class="modal-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Entrée de stock</div>
+    <div class="form-row">
+      <div class="form-group"><label>Produit *</label><select id="entree-produit" onchange="updateEntreeCalc()"><option value="">Sélectionner...</option></select></div>
+      <div class="form-group"><label>Emplacement *</label><select id="entree-emplacement"><option value="depot">Dépôt</option><option value="logistisud">Logistisud</option></select></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label>Produit *</label>
-        <select id="entree-produit" onchange="updateEntreeUVC()">
-          <option value="">Sélectionner...</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Référence conteneur</label>
-        <input type="text" id="entree-conteneur" placeholder="ex: CNT-045">
-      </div>
+      <div class="form-group"><label>Quantité (cartons) *</label><input type="number" id="entree-qte" min="1" placeholder="0" oninput="updateEntreeCalc()"></div>
+      <div class="form-group"><label>N° Lot / Conteneur</label><input type="text" id="entree-lot" placeholder="ex: QUANZHOU 1126"></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label>Quantité (cartons) *</label>
-        <input type="number" id="entree-qte" min="1" placeholder="0" oninput="updateEntreeUVC()">
-      </div>
-      <div class="form-group">
-        <label>DLC</label>
-        <input type="month" id="entree-dlc">
-      </div>
+      <div class="form-group"><label>DLC du lot</label><input type="month" id="entree-dlc"></div>
+      <div class="form-group"><label>Référence TC (si lié)</label><select id="entree-tc-ref"><option value="">Aucun</option></select></div>
     </div>
-    <div class="uvc-calc" id="entree-uvc-calc"></div>
-    <div class="form-group">
-      <label>Statut conteneur</label>
-      <select id="entree-statut-cnt">
-        <option value="Arrivé au dépôt">Arrivé au dépôt</option>
-        <option value="En transit">En transit</option>
-        <option value="En commande fournisseur">En commande fournisseur</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Remarque</label>
-      <input type="text" id="entree-remarque" placeholder="Optionnel...">
-    </div>
-    <div class="modal-actions">
-      <button class="btn" onclick="closeModal('modal-entree')">Annuler</button>
-      <button class="btn btn-green" onclick="validerEntree()">Valider l'entrée</button>
-    </div>
+    <div class="uvc-info" id="entree-uvc-info"></div>
+    <div class="form-group"><label>Remarque</label><input type="text" id="entree-remarque" placeholder="Optionnel..."></div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal('modal-entree')">Annuler</button><button class="btn btn-green" onclick="validerEntree()">Valider l'entrée</button></div>
   </div>
 </div>
 
 <!-- MODAL SORTIE -->
 <div id="modal-sortie" class="modal-overlay" style="display:none" onclick="closeModalIfOutside(event,'modal-sortie')">
   <div class="modal">
-    <div class="modal-title">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-      Sortie de stock
+    <div class="modal-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>Sortie de stock</div>
+    <div class="form-row">
+      <div class="form-group"><label>Produit *</label><select id="sortie-produit" onchange="updateSortieCalc()"><option value="">Sélectionner...</option></select></div>
+      <div class="form-group"><label>Emplacement *</label><select id="sortie-emplacement"><option value="depot">Dépôt</option><option value="logistisud">Logistisud</option></select></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label>Produit *</label>
-        <select id="sortie-produit" onchange="updateSortieUVC()">
-          <option value="">Sélectionner...</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>N° BL *</label>
-        <input type="text" id="sortie-bl" placeholder="ex: BL-2024-892">
-      </div>
+      <div class="form-group"><label>Quantité (cartons) *</label><input type="number" id="sortie-qte" min="1" placeholder="0" oninput="updateSortieCalc()"></div>
+      <div class="form-group"><label>UVC (calculé auto)</label><input type="text" id="sortie-uvc-display" readonly style="background:var(--bg4);color:var(--text3)"></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label>Quantité (cartons) *</label>
-        <input type="number" id="sortie-qte" min="1" placeholder="0" oninput="updateSortieUVC()">
-      </div>
-      <div class="form-group">
-        <label>UVC (calculé auto)</label>
-        <input type="text" id="sortie-uvc-display" readonly style="background:var(--bg4);color:var(--text3)">
-      </div>
+      <div class="form-group"><label>N° Lot / TC</label><input type="text" id="sortie-lot" placeholder="ex: QUANZHOU 1126"></div>
+      <div class="form-group"><label>DLC lot</label><input type="text" id="sortie-dlc-lot" placeholder="ex: 12/2025"></div>
     </div>
-    <div class="form-group">
-      <label>Remarque</label>
-      <input type="text" id="sortie-remarque" placeholder="Optionnel...">
+    <div class="form-row">
+      <div class="form-group"><label>Canal *</label><select id="sortie-canal"><option value="E-COM">E-COM</option><option value="GMS">GMS (Leclerc, U...)</option><option value="Autre">Autre</option></select></div>
+      <div class="form-group"><label>Client</label><input type="text" id="sortie-client" placeholder="Nom du client"></div>
     </div>
-    <div class="modal-actions">
-      <button class="btn" onclick="closeModal('modal-sortie')">Annuler</button>
-      <button class="btn btn-green" onclick="validerSortie()">Valider la sortie</button>
+    <div class="form-group"><label>N° BL *</label><input type="text" id="sortie-bl" placeholder="ex: BL-2024-892"></div>
+    <div class="form-group"><label>Remarque</label><input type="text" id="sortie-remarque" placeholder="Optionnel..."></div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal('modal-sortie')">Annuler</button><button class="btn btn-green" onclick="validerSortie()">Valider la sortie</button></div>
+  </div>
+</div>
+
+<!-- MODAL TC -->
+<div id="modal-tc" class="modal-overlay" style="display:none" onclick="closeModalIfOutside(event,'modal-tc')">
+  <div class="modal">
+    <div class="modal-title" id="tc-modal-title">Nouveau TC</div>
+    <input type="hidden" id="tc-id">
+    <div class="form-row">
+      <div class="form-group"><label>Référence LI *</label><input type="text" id="tc-ref-li" placeholder="ex: QUANZHOU-1/26"></div>
+      <div class="form-group"><label>Étape</label><select id="tc-etape"><option value="INSTRU">INSTRU</option><option value="PHOTOS">PHOTOS</option><option value="DLR">DLR</option><option value="CLO">CLO</option><option value="OFFRE">OFFRE</option></select></div>
     </div>
+    <div class="form-row">
+      <div class="form-group"><label>Fournisseur</label><input type="text" id="tc-fournisseur" placeholder="ex: QUANZHOU TIANJIAO"></div>
+      <div class="form-group"><label>Client</label><input type="text" id="tc-client" placeholder="ex: VINDEMIA"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>N° TC</label><input type="text" id="tc-numero" placeholder="ex: CMAU4496341"></div>
+      <div class="form-group"><label>N° Lot / Plomb</label><input type="text" id="tc-lot" placeholder="ex: M8660713"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>ETD</label><input type="text" id="tc-etd" placeholder="ex: 04/02"></div>
+      <div class="form-group"><label>ETA</label><input type="date" id="tc-eta"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Type TC</label><select id="tc-type"><option value="40HC">40HC</option><option value="20FCL">20 FCL</option><option value="40RF">40RF</option><option value="20RF">20RF</option><option value="AVION">AVION</option><option value="Autre">Autre</option></select></div>
+      <div class="form-group"><label>Compagnie maritime</label><input type="text" id="tc-compagnie" placeholder="ex: CMA"></div>
+    </div>
+    <div class="form-group"><label>Désignation marchandise</label><input type="text" id="tc-designation" placeholder="ex: COUCHES ZOOPI S/M/L/XL/XXL"></div>
+    <div class="form-group"><label>MAJ / Alerte</label><textarea id="tc-maj" rows="3" placeholder="Notes de suivi, alertes..."></textarea></div>
+    <div class="form-group"><label>Lié au stock FLOWSTOCK ?</label><select id="tc-stock-link"><option value="non">Non (TC client / flux tendu)</option><option value="oui">Oui (TC pour stock dépôt)</option></select></div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal('modal-tc')">Annuler</button><button class="btn btn-green" onclick="saveTC()">Enregistrer</button></div>
   </div>
 </div>
 
 <!-- MODAL PRODUIT -->
 <div id="modal-produit" class="modal-overlay" style="display:none" onclick="closeModalIfOutside(event,'modal-produit')">
   <div class="modal">
-    <div class="modal-title">Nouveau produit</div>
+    <div class="modal-title" id="prod-modal-title">Nouveau produit</div>
     <input type="hidden" id="produit-id">
     <div class="form-row">
-      <div class="form-group">
-        <label>Désignation *</label>
-        <input type="text" id="prod-designation" placeholder="Nom du produit">
-      </div>
-      <div class="form-group">
-        <label>Référence *</label>
-        <input type="text" id="prod-reference" placeholder="ex: REF-0001">
-      </div>
+      <div class="form-group"><label>Désignation *</label><input type="text" id="prod-designation" placeholder="ex: Couche ZOOPI"></div>
+      <div class="form-group"><label>Référence *</label><input type="text" id="prod-reference" placeholder="ex: REF-0001"></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label>EAN</label>
-        <input type="text" id="prod-ean" placeholder="Code-barres">
-      </div>
-      <div class="form-group">
-        <label>PCB (UVC/carton) *</label>
-        <input type="number" id="prod-pcb" min="1" placeholder="ex: 24">
-      </div>
+      <div class="form-group"><label>Taille</label><select id="prod-taille"><option value="">Sans taille</option><option value="S">S</option><option value="M">M</option><option value="L">L</option><option value="XL">XL</option><option value="XXL">XXL</option></select></div>
+      <div class="form-group"><label>EAN</label><input type="text" id="prod-ean" placeholder="Code-barres EAN"></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label>Seuil alerte (cartons)</label>
-        <input type="number" id="prod-seuil" min="0" placeholder="ex: 20">
-      </div>
-      <div class="form-group">
-        <label>Statut</label>
-        <select id="prod-statut">
-          <option>Disponible</option>
-          <option>En commande</option>
-          <option>Rupture</option>
-          <option>Inactif</option>
-        </select>
-      </div>
+      <div class="form-group"><label>PCB (paquets/carton) *</label><input type="number" id="prod-pcb" min="1" placeholder="ex: 6"></div>
+      <div class="form-group"><label>UVC par paquet</label><input type="number" id="prod-uvc-paquet" min="1" placeholder="ex: 42 pour taille S"></div>
     </div>
-    <div class="modal-actions">
-      <button class="btn" onclick="closeModal('modal-produit')">Annuler</button>
-      <button class="btn btn-green" onclick="saveProduit()">Enregistrer</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL CONTENEUR -->
-<div id="modal-conteneur" class="modal-overlay" style="display:none" onclick="closeModalIfOutside(event,'modal-conteneur')">
-  <div class="modal">
-    <div class="modal-title">Nouveau conteneur</div>
     <div class="form-row">
-      <div class="form-group">
-        <label>Référence *</label>
-        <input type="text" id="cnt-ref" placeholder="ex: CNT-045">
-      </div>
-      <div class="form-group">
-        <label>Statut</label>
-        <select id="cnt-statut">
-          <option>En commande fournisseur</option>
-          <option>En transit</option>
-          <option>Arrivé au dépôt</option>
-        </select>
-      </div>
+      <div class="form-group"><label>Seuil alerte (cartons)</label><input type="number" id="prod-seuil" min="0" placeholder="ex: 20"></div>
+      <div class="form-group"><label>Statut</label><select id="prod-statut"><option>Disponible</option><option>En commande</option><option>Rupture</option><option>Inactif</option></select></div>
     </div>
-    <div class="form-group">
-      <label>Date arrivée prévue</label>
-      <input type="date" id="cnt-date">
-    </div>
-    <div class="form-group">
-      <label>Remarque</label>
-      <input type="text" id="cnt-remarque" placeholder="Optionnel...">
-    </div>
-    <div class="modal-actions">
-      <button class="btn" onclick="closeModal('modal-conteneur')">Annuler</button>
-      <button class="btn btn-green" onclick="saveConteneur()">Enregistrer</button>
-    </div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal('modal-produit')">Annuler</button><button class="btn btn-green" onclick="saveProduit()">Enregistrer</button></div>
   </div>
 </div>
 
 <!-- MODAL SORTIE DEPOT -->
 <div id="modal-sortie-depot" class="modal-overlay" style="display:none" onclick="closeModalIfOutside(event,'modal-sortie-depot')">
   <div class="modal">
-    <div class="modal-title" id="sortie-depot-title">Sortie — Produit</div>
-    <div class="form-group">
-      <label>N° BL *</label>
-      <input type="text" id="depot-sortie-bl" placeholder="ex: BL-2024-892">
+    <div class="modal-title" id="sortie-depot-title">Sortie</div>
+    <div class="form-group"><label>N° BL *</label><input type="text" id="depot-sortie-bl" placeholder="ex: BL-2024-892"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Quantité (cartons) *</label><input type="number" id="depot-sortie-qte" min="1" placeholder="0" oninput="updateDepotUVC()"></div>
+      <div class="form-group"><label>UVC (auto)</label><input type="text" id="depot-sortie-uvc" readonly style="background:var(--bg4);color:var(--text3)"></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label>Quantité (cartons) *</label>
-        <input type="number" id="depot-sortie-qte" min="1" placeholder="0" oninput="updateDepotUVC()">
-      </div>
-      <div class="form-group">
-        <label>UVC (auto)</label>
-        <input type="text" id="depot-sortie-uvc" readonly style="background:var(--bg4);color:var(--text3)">
-      </div>
+      <div class="form-group"><label>Canal</label><select id="depot-sortie-canal"><option value="E-COM">E-COM</option><option value="GMS">GMS</option><option value="Autre">Autre</option></select></div>
+      <div class="form-group"><label>Client</label><input type="text" id="depot-sortie-client" placeholder="Nom du client"></div>
     </div>
-    <div class="form-group">
-      <label>Remarque</label>
-      <input type="text" id="depot-sortie-remarque" placeholder="Optionnel...">
+    <div class="form-row">
+      <div class="form-group"><label>N° Lot / TC</label><input type="text" id="depot-sortie-lot" placeholder="ex: QUANZHOU 1126"></div>
+      <div class="form-group"><label>DLC lot</label><input type="text" id="depot-sortie-dlc" placeholder="ex: 12/2025"></div>
     </div>
-    <div class="modal-actions">
-      <button class="btn" onclick="closeModal('modal-sortie-depot')">Annuler</button>
-      <button class="btn btn-green" onclick="validerSortieDepot()">Confirmer la sortie</button>
-    </div>
+    <div class="form-group"><label>Remarque</label><input type="text" id="depot-sortie-remarque" placeholder="Optionnel..."></div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal('modal-sortie-depot')">Annuler</button><button class="btn btn-green" onclick="validerSortieDepot()">Confirmer la sortie</button></div>
   </div>
 </div>
 
-<!-- TOAST -->
-<div class="toast" id="toast">
-  <div class="toast-dot"></div>
-  <span id="toast-msg"></span>
-</div>
+<div class="toast" id="toast"><div class="toast-dot"></div><span id="toast-msg"></span></div>
 
 <script>
-const SUPABASE_URL = 'https://crorodoeotvsvkhbyoxl.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_RGWWC84u__tpS-KmzsySkQ_Gz4LUVa2';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_URL='https://crorodoeotvsvkhbyoxl.supabase.co';
+const SUPABASE_KEY='sb_publishable_RGWWC84u__tpS-KmzsySkQ_Gz4LUVa2';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const APP_PASSWORD='flowstock2024';
+const SESSION_KEY='fs_auth_v2';
+let allProduits=[],allTC=[],stockFilter='',statusFilter='',tcEtapeFilter='',tcSearchFilter='',currentDepotProduit=null,currentRole='bureau';
 
-let allProduits = [];
-let stockFilter = '';
-let statusFilter = '';
-let currentDepotProduit = null;
-let currentRole = 'bureau';
-
-// INIT
-async function init() {
-  await setupDB();
-  await loadAll();
-}
-
-async function setupDB() {
-  // Créer tables si besoin via RPC ou SQL Editor - on vérifie juste si elles existent
-  try {
-    await sb.from('produits').select('id').limit(1);
-  } catch(e) {
-    showToast('Initialisation de la base de données...', 'success');
+function checkLogin(){
+  const pwd=document.getElementById('login-pwd').value;
+  const errEl=document.getElementById('login-error');
+  const input=document.getElementById('login-pwd');
+  if(pwd===APP_PASSWORD){
+    sessionStorage.setItem(SESSION_KEY,'1');
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('main-app').style.display='flex';
+    init();
+  } else {
+    errEl.textContent='Mot de passe incorrect';
+    input.classList.add('error');input.value='';
+    setTimeout(()=>{errEl.textContent='';input.classList.remove('error');},2500);
   }
 }
-
-async function loadAll() {
-  await loadProduits();
-  loadDashboard();
-  loadMouvements();
-  loadConteneurs();
+if(sessionStorage.getItem(SESSION_KEY)==='1'){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('main-app').style.display='flex';
+  init();
 }
 
-async function loadProduits() {
-  const { data, error } = await sb.from('produits').select('*').order('designation');
-  if (error) { handleError(error); return; }
-  allProduits = data || [];
-  renderStockTable(allProduits);
-  renderProdTable(allProduits);
-  renderDepotList(allProduits);
-  updateMetrics(allProduits);
-  renderAlerts(allProduits);
-  fillSelects(allProduits);
+async function init(){await loadProduits();await loadTC();await loadMouvements();}
+
+async function loadProduits(){
+  const{data,error}=await sb.from('produits').select('*').order('designation');
+  if(error){handleError(error);return;}
+  allProduits=data||[];
+  renderStockTable(allProduits);renderProdTable(allProduits);renderDepotList(allProduits);
+  updateMetrics(allProduits);renderAlerts(allProduits);fillSelects(allProduits);
 }
 
-async function loadMouvements() {
-  const { data, error } = await sb.from('mouvements').select('*, produits(designation, reference)').order('created_at', {ascending: false}).limit(100);
-  if (error) { handleError(error); return; }
-  renderMouvTable(data || []);
-  renderHistoryDash(data ? data.slice(0,5) : []);
+async function loadTC(){
+  const{data,error}=await sb.from('conteneurs_tc').select('*').order('created_at',{ascending:false});
+  if(error){handleError(error);return;}
+  allTC=data||[];
+  renderTCList(allTC);updateTCMetrics(allTC);fillTCSelect(allTC);renderTCNotify(allTC);
 }
 
-async function loadConteneurs() {
-  const { data, error } = await sb.from('conteneurs').select('*').order('created_at', {ascending: false});
-  if (error) { handleError(error); return; }
-  renderContTable(data || []);
+async function loadMouvements(){
+  const{data,error}=await sb.from('mouvements').select('*,produits(designation,reference,taille)').order('created_at',{ascending:false}).limit(200);
+  if(error){handleError(error);return;}
+  renderMouvTable(data||[]);renderHistoryDash((data||[]).slice(0,6));
 }
 
-// METRICS
-function updateMetrics(produits) {
-  const actifs = produits.filter(p => p.statut !== 'Inactif');
-  const totalUVC = produits.reduce((s, p) => s + ((p.quantite_cartons || 0) * (p.pcb || 1)), 0);
-  const alertes = produits.filter(p => p.seuil_alerte && (p.quantite_cartons || 0) <= p.seuil_alerte && p.statut !== 'Inactif');
-  const enCmd = produits.filter(p => p.statut === 'En commande').length;
-
-  document.getElementById('m-refs').textContent = actifs.length;
-  document.getElementById('m-uvc').textContent = totalUVC.toLocaleString('fr');
-  document.getElementById('m-cmd').textContent = enCmd;
-  document.getElementById('m-alerte').textContent = alertes.length;
-
-  const badge = document.getElementById('alert-badge');
-  if (alertes.length > 0) { badge.style.display = ''; badge.textContent = alertes.length; }
-  else badge.style.display = 'none';
-
-  const wrap = document.getElementById('alert-banner-wrap');
-  if (alertes.length > 0) {
-    wrap.innerHTML = `<div class="alert-banner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>${alertes.length} produit${alertes.length>1?'s':''} en dessous du seuil d'alerte</div>`;
-  } else wrap.innerHTML = '';
+function updateMetrics(produits){
+  const actifs=produits.filter(p=>p.statut!=='Inactif');
+  const totalUVC=produits.reduce((s,p)=>s+((p.qte_depot||0)+(p.qte_logistisud||0))*(p.pcb||1)*(p.uvc_paquet||1),0);
+  const alertes=produits.filter(p=>p.seuil_alerte&&((p.qte_depot||0)+(p.qte_logistisud||0))<=p.seuil_alerte&&p.statut!=='Inactif');
+  document.getElementById('m-refs').textContent=actifs.length;
+  document.getElementById('m-uvc').textContent=totalUVC.toLocaleString('fr');
+  document.getElementById('m-alerte').textContent=alertes.length;
+  const badge=document.getElementById('alert-badge');
+  if(alertes.length>0){badge.style.display='';badge.textContent=alertes.length;}else badge.style.display='none';
+  const wrap=document.getElementById('alert-banner-wrap');
+  wrap.innerHTML=alertes.length>0?`<div class="alert-banner">⚠ ${alertes.length} produit${alertes.length>1?'s':''} en dessous du seuil d'alerte</div>`:'';
 }
 
-// RENDER STOCK TABLE
-function renderStockTable(produits) {
-  const tbody = document.getElementById('stock-table-body');
-  if (!produits.length) { tbody.innerHTML = '<tr><td colspan="11"><div class="empty">Aucun produit trouvé</div></td></tr>'; return; }
-  tbody.innerHTML = produits.map(p => {
-    const uvc = (p.quantite_cartons || 0) * (p.pcb || 1);
-    const lowStock = p.seuil_alerte && (p.quantite_cartons || 0) <= p.seuil_alerte;
-    const badgeClass = {Disponible:'badge-dispo','En commande':'badge-cmd',Rupture:'badge-rupture',Inactif:'badge-inactif'}[p.statut] || 'badge-inactif';
+function updateTCMetrics(tc){
+  const actifs=tc.filter(t=>t.etape!=='CLO');
+  document.getElementById('m-tc').textContent=actifs.length;
+  const alertes=tc.filter(t=>t.etape!=='CLO'&&t.maj_alerte);
+  const badge=document.getElementById('tc-badge');
+  if(alertes.length>0){badge.style.display='';badge.textContent=alertes.length;}else badge.style.display='none';
+}
+
+function renderTCNotify(tc){
+  const wrap=document.getElementById('tc-notify-wrap');
+  const arrives=tc.filter(t=>t.etape==='DLR'&&t.lien_stock==='oui');
+  wrap.innerHTML=arrives.map(t=>`<div class="tc-notify"><span class="tc-notify-text">🚢 TC ${t.ref_li} (${t.fournisseur||''}) est en DLR — lié au stock.</span><button class="tc-notify-btn" onclick="openEntreeFromTC(${t.id})">Créer entrée stock</button></div>`).join('');
+}
+
+function renderTCList(tc){
+  const filtered=tc.filter(t=>{
+    const matchEtape=!tcEtapeFilter||t.etape===tcEtapeFilter;
+    const q=tcSearchFilter.toLowerCase();
+    const matchSearch=!q||(t.ref_li||'').toLowerCase().includes(q)||(t.fournisseur||'').toLowerCase().includes(q)||(t.numero_tc||'').toLowerCase().includes(q)||(t.client||'').toLowerCase().includes(q);
+    return matchEtape&&matchSearch;
+  });
+  const el=document.getElementById('tc-list');
+  if(!filtered.length){el.innerHTML='<div class="empty">Aucun TC trouvé</div>';return;}
+  const ec={INSTRU:'badge-blue',PHOTOS:'badge-purple',DLR:'badge-amber',CLO:'badge-green',OFFRE:'badge-gray'};
+  const cc={INSTRU:'transit',PHOTOS:'transit',DLR:'arrived',CLO:'closed',OFFRE:'ordered'};
+  el.innerHTML=filtered.map(t=>`<div class="tc-card ${cc[t.etape]||''}">
+    <div class="tc-header">
+      <div>
+        <div class="tc-ref">${t.ref_li||'—'}${t.lien_stock==='oui'?' <span style="font-size:10px;background:var(--green-dim);color:var(--green);padding:1px 6px;border-radius:4px;margin-left:6px">STOCK</span>':''}</div>
+        <div class="tc-fournisseur">${t.fournisseur||''}${t.client?' → '+t.client:''}</div>
+      </div>
+      <span class="badge ${ec[t.etape]||'badge-gray'}">${t.etape||'—'}</span>
+    </div>
+    ${t.maj_alerte?`<div class="tc-alerte">⚠ ${t.maj_alerte.substring(0,150)}${t.maj_alerte.length>150?'...':''}</div>`:''}
+    <div class="tc-meta">
+      ${t.numero_tc?`<div class="tc-meta-item"><span class="tc-meta-label">N° TC</span><span class="tc-meta-value mono" style="font-family:'DM Mono',monospace;font-size:12px">${t.numero_tc.split('\n')[0]}</span></div>`:''}
+      ${t.etd?`<div class="tc-meta-item"><span class="tc-meta-label">ETD</span><span class="tc-meta-value">${t.etd.split('\n')[0]}</span></div>`:''}
+      <div class="tc-meta-item"><span class="tc-meta-label">ETA</span><span class="tc-meta-value">${t.eta?new Date(t.eta).toLocaleDateString('fr',{day:'2-digit',month:'2-digit',year:'numeric'}):'—'}</span></div>
+      ${t.type_tc?`<div class="tc-meta-item"><span class="tc-meta-label">Type</span><span class="tc-meta-value">${t.type_tc}</span></div>`:''}
+      ${t.compagnie?`<div class="tc-meta-item"><span class="tc-meta-label">Ligne</span><span class="tc-meta-value">${t.compagnie}</span></div>`:''}
+      ${t.designation?`<div class="tc-meta-item"><span class="tc-meta-label">Marchandise</span><span class="tc-meta-value">${t.designation.substring(0,50)}</span></div>`:''}
+    </div>
+    <div class="tc-actions">
+      <button class="btn btn-sm" onclick="editTC(${t.id})">Modifier</button>
+      ${t.lien_stock==='oui'&&t.etape!=='CLO'?`<button class="btn btn-sm btn-blue" onclick="openEntreeFromTC(${t.id})">→ Entrée stock</button>`:''}
+      ${t.etape!=='CLO'?`<button class="btn btn-sm" style="color:var(--green)" onclick="cloreTC(${t.id})">Clôturer</button>`:''}
+      <button class="btn btn-sm" style="color:var(--red);margin-left:auto" onclick="deleteTC(${t.id})">Suppr.</button>
+    </div>
+  </div>`).join('');
+}
+
+function renderStockTable(produits){
+  const tbody=document.getElementById('stock-table-body');
+  let filtered=produits;
+  if(statusFilter)filtered=filtered.filter(p=>p.statut===statusFilter);
+  if(stockFilter){const q=stockFilter;filtered=filtered.filter(p=>(p.designation||'').toLowerCase().includes(q)||(p.reference||'').toLowerCase().includes(q)||(p.ean||'').toLowerCase().includes(q));}
+  if(!filtered.length){tbody.innerHTML='<tr><td colspan="14"><div class="empty">Aucun produit</div></td></tr>';return;}
+  tbody.innerHTML=filtered.map(p=>{
+    const t=(p.qte_depot||0)+(p.qte_logistisud||0);
+    const uvc=t*(p.pcb||1)*(p.uvc_paquet||1);
+    const low=p.seuil_alerte&&t<=p.seuil_alerte;
+    const bc={Disponible:'badge-green','En commande':'badge-amber',Rupture:'badge-red',Inactif:'badge-gray'}[p.statut]||'badge-gray';
     return `<tr>
-      <td style="font-weight:500${lowStock?' color:var(--red)':''}">${p.designation}</td>
-      <td class="mono">${p.reference || '—'}</td>
-      <td class="mono">${p.ean || '—'}</td>
-      <td style="text-align:center">${p.pcb || '—'}</td>
-      <td style="text-align:center;font-weight:600${lowStock?' color:var(--red)':''}">${p.quantite_cartons || 0}</td>
-      <td style="text-align:center;font-weight:600;color:${lowStock?'var(--red)':'var(--green)'}">${uvc.toLocaleString('fr')}</td>
-      <td style="text-align:center;color:var(--text3)">${p.en_commande_cartons ? p.en_commande_cartons+' ctn' : '—'}</td>
-      <td class="mono">${p.dlc || '—'}</td>
-      <td style="text-align:center">${p.seuil_alerte || '—'}</td>
-      <td><span class="badge ${badgeClass}">${p.statut}</span></td>
+      <td style="font-weight:500${low?';color:var(--red)':''}">${p.designation}</td>
+      <td class="mono">${p.reference||'—'}</td>
+      <td>${p.taille?`<span class="badge badge-blue">${p.taille}</span>`:'—'}</td>
+      <td class="mono">${p.ean||'—'}</td>
+      <td style="text-align:center">${p.pcb||'—'}</td>
+      <td style="text-align:center">${p.uvc_paquet||'—'}</td>
+      <td style="text-align:center;font-weight:600${low?';color:var(--red)':''}">${p.qte_depot||0}</td>
+      <td style="text-align:center;color:var(--blue)">${p.qte_logistisud||0}</td>
+      <td style="text-align:center;font-weight:600;color:${low?'var(--red)':'var(--green)'}">${uvc.toLocaleString('fr')}</td>
+      <td style="text-align:center;color:var(--text3)">${p.en_commande_cartons||'—'}</td>
+      <td class="mono">${p.dlc||'—'}</td>
+      <td style="text-align:center">${p.seuil_alerte||'—'}</td>
+      <td><span class="badge ${bc}">${p.statut}</span></td>
       <td><button class="btn btn-sm" onclick="editProduit(${p.id})">Modifier</button></td>
     </tr>`;
   }).join('');
 }
 
-function renderProdTable(produits) {
-  const tbody = document.getElementById('prod-table-body');
-  if (!produits.length) { tbody.innerHTML = '<tr><td colspan="7"><div class="empty">Aucun produit</div></td></tr>'; return; }
-  tbody.innerHTML = produits.map(p => {
-    const badgeClass = {Disponible:'badge-dispo','En commande':'badge-cmd',Rupture:'badge-rupture',Inactif:'badge-inactif'}[p.statut] || 'badge-inactif';
+function renderProdTable(produits){
+  const tbody=document.getElementById('prod-table-body');
+  if(!produits.length){tbody.innerHTML='<tr><td colspan="9"><div class="empty">Aucun produit</div></td></tr>';return;}
+  tbody.innerHTML=produits.map(p=>{
+    const bc={Disponible:'badge-green','En commande':'badge-amber',Rupture:'badge-red',Inactif:'badge-gray'}[p.statut]||'badge-gray';
     return `<tr>
-      <td style="font-weight:500">${p.designation}</td>
-      <td class="mono">${p.reference || '—'}</td>
-      <td class="mono">${p.ean || '—'}</td>
-      <td style="text-align:center">${p.pcb || '—'}</td>
-      <td style="text-align:center">${p.seuil_alerte || '—'}</td>
-      <td><span class="badge ${badgeClass}">${p.statut}</span></td>
-      <td style="display:flex;gap:6px"><button class="btn btn-sm" onclick="editProduit(${p.id})">Modifier</button><button class="btn btn-sm" style="color:var(--red)" onclick="deleteProduit(${p.id},'${p.designation.replace(/'/g,"\\'")}')">Suppr.</button></td>
+      <td style="font-weight:500">${p.designation}</td><td class="mono">${p.reference||'—'}</td>
+      <td>${p.taille?`<span class="badge badge-blue">${p.taille}</span>`:'—'}</td>
+      <td class="mono">${p.ean||'—'}</td><td style="text-align:center">${p.pcb||'—'}</td>
+      <td style="text-align:center">${p.uvc_paquet||'—'}</td><td style="text-align:center">${p.seuil_alerte||'—'}</td>
+      <td><span class="badge ${bc}">${p.statut}</span></td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-sm" onclick="editProduit(${p.id})">Modifier</button>
+        <button class="btn btn-sm" style="color:var(--red)" onclick="deleteProduit(${p.id},'${p.designation.replace(/'/g,"\\'")}')">Suppr.</button>
+      </td>
     </tr>`;
   }).join('');
 }
 
-function renderDepotList(produits) {
-  const actifs = produits.filter(p => p.statut !== 'Inactif');
-  const list = document.getElementById('depot-list');
-  if (!actifs.length) { list.innerHTML = '<div class="empty">Aucun produit disponible</div>'; return; }
-  list.innerHTML = actifs.map(p => {
-    const uvc = (p.quantite_cartons || 0) * (p.pcb || 1);
-    const lowStock = p.seuil_alerte && (p.quantite_cartons || 0) <= p.seuil_alerte;
-    return `<div class="depot-card${lowStock?' low-stock':''}" data-designation="${p.designation.toLowerCase()}" data-ean="${(p.ean||'').toLowerCase()}">
+function renderDepotList(produits){
+  const actifs=produits.filter(p=>p.statut!=='Inactif');
+  const el=document.getElementById('depot-list');
+  if(!actifs.length){el.innerHTML='<div class="empty">Aucun produit</div>';return;}
+  el.innerHTML=actifs.map(p=>{
+    const t=(p.qte_depot||0)+(p.qte_logistisud||0);
+    const uvc=t*(p.pcb||1)*(p.uvc_paquet||1);
+    const low=p.seuil_alerte&&t<=p.seuil_alerte;
+    return `<div class="depot-card${low?' low-stock':''}" data-designation="${(p.designation||'').toLowerCase()}" data-ean="${(p.ean||'').toLowerCase()}" data-taille="${(p.taille||'').toLowerCase()}">
       <div class="depot-header">
         <div>
-          <div class="depot-name">${p.designation}</div>
-          <div class="depot-ref">${p.reference || ''} · PCB ${p.pcb || '?'} UVC</div>
+          <div class="depot-name">${p.designation}${p.taille?` <span class="badge badge-blue" style="font-size:10px">${p.taille}</span>`:''}</div>
+          <div class="depot-ref">${p.reference||''} · PCB ${p.pcb||'?'} · ${p.uvc_paquet||'?'} UVC/paquet</div>
         </div>
-        <div class="depot-uvc">
-          <div class="depot-uvc-num" style="${lowStock?'color:var(--red)':''}">${uvc.toLocaleString('fr')}</div>
-          <div class="depot-uvc-label" style="${lowStock?'color:var(--red)':''}">${lowStock?'UVC · STOCK BAS !':'UVC dispo'}</div>
-        </div>
+        <div><div class="depot-uvc-num" style="${low?'color:var(--red)':''}">${uvc.toLocaleString('fr')}</div><div class="depot-uvc-label">${low?'STOCK BAS !':'UVC dispo'}</div></div>
       </div>
-      <div class="depot-meta">${p.quantite_cartons || 0} cartons${p.dlc ? ' · DLC '+p.dlc : ''}${p.seuil_alerte ? ' · Seuil: '+p.seuil_alerte+' ctn' : ''}</div>
+      <div class="depot-meta">
+        <span class="loc-tag loc-depot">Dépôt: ${p.qte_depot||0} ctn</span> &nbsp;
+        <span class="loc-tag loc-logistisud">Logistisud: ${p.qte_logistisud||0} ctn</span>
+        ${p.dlc?' · DLC '+p.dlc:''}
+      </div>
       <div class="depot-actions">
         <button class="depot-btn-sortie" onclick="openSortieDepot(${p.id})">Saisir une sortie</button>
-        <button class="depot-btn-detail" onclick="showDetailDepot(${p.id})">Détail</button>
+        <button class="depot-btn-detail" onclick="showToast('Dépôt: ${p.qte_depot||0} ctn / Logistisud: ${p.qte_logistisud||0} ctn · ${uvc.toLocaleString()} UVC','success')">Détail</button>
       </div>
     </div>`;
   }).join('');
 }
 
-function renderMouvTable(mouvements) {
-  const tbody = document.getElementById('mouv-table-body');
-  if (!mouvements.length) { tbody.innerHTML = '<tr><td colspan="8"><div class="empty">Aucun mouvement enregistré</div></td></tr>'; return; }
-  tbody.innerHTML = mouvements.map(m => {
-    const isEntree = m.type === 'entree';
-    const uvc = (m.quantite_cartons || 0) * (m.pcb_au_moment || 1);
-    const date = new Date(m.created_at);
-    const dateStr = date.toLocaleDateString('fr', {day:'2-digit',month:'2-digit'}) + ' ' + date.toLocaleTimeString('fr', {hour:'2-digit',minute:'2-digit'});
+function renderMouvTable(mouvements){
+  const tbody=document.getElementById('mouv-table-body');
+  if(!mouvements.length){tbody.innerHTML='<tr><td colspan="12"><div class="empty">Aucun mouvement</div></td></tr>';return;}
+  tbody.innerHTML=mouvements.map(m=>{
+    const ie=m.type==='entree';
+    const uvc=(m.quantite_cartons||0)*(m.pcb_moment||1)*(m.uvc_paquet_moment||1);
+    const d=new Date(m.created_at);
+    const ds=d.toLocaleDateString('fr',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('fr',{hour:'2-digit',minute:'2-digit'});
+    const loc=m.emplacement==='logistisud'?'<span class="loc-tag loc-logistisud">Logistisud</span>':'<span class="loc-tag loc-depot">Dépôt</span>';
     return `<tr>
-      <td><span class="badge ${isEntree?'badge-dispo':'badge-rupture'}">${isEntree?'Entrée':'Sortie'}</span></td>
-      <td style="font-weight:500">${m.produits?.designation || '—'}</td>
-      <td style="font-weight:600;color:${isEntree?'var(--green)':'var(--red)'}">${isEntree?'+':'−'}${m.quantite_cartons} ctn</td>
-      <td style="color:${isEntree?'var(--green)':'var(--red)'}">${isEntree?'+':'−'}${uvc.toLocaleString('fr')}</td>
-      <td class="mono">${m.reference_bl_conteneur || '—'}</td>
-      <td style="color:var(--text3)">${m.utilisateur || '—'}</td>
-      <td class="mono" style="color:var(--text3)">${dateStr}</td>
-      <td style="color:var(--text3)">${m.remarque || '—'}</td>
+      <td><span class="badge ${ie?'badge-green':'badge-red'}">${ie?'Entrée':'Sortie'}</span></td>
+      <td style="font-weight:500">${m.produits?.designation||'—'}</td>
+      <td>${m.produits?.taille?`<span class="badge badge-blue">${m.produits.taille}</span>`:'—'}</td>
+      <td>${loc}</td>
+      <td style="font-weight:600;color:${ie?'var(--green)':'var(--red)'}">${ie?'+':'−'}${m.quantite_cartons}</td>
+      <td style="color:${ie?'var(--green)':'var(--red)'}">${ie?'+':'−'}${uvc.toLocaleString('fr')}</td>
+      <td class="mono">${m.numero_lot||'—'}</td>
+      <td class="mono">${m.dlc_lot||'—'}</td>
+      <td>${m.canal?`<span class="badge ${m.canal==='E-COM'?'badge-blue':'badge-amber'}">${m.canal}</span>`:'—'}</td>
+      <td style="color:var(--text2)">${m.client||'—'}</td>
+      <td class="mono">${m.reference_bl||'—'}</td>
+      <td class="mono" style="color:var(--text3)">${ds}</td>
     </tr>`;
   }).join('');
 }
 
-function renderContTable(conteneurs) {
-  const tbody = document.getElementById('cont-table-body');
-  if (!conteneurs.length) { tbody.innerHTML = '<tr><td colspan="5"><div class="empty">Aucun conteneur</div></td></tr>'; return; }
-  tbody.innerHTML = conteneurs.map(c => {
-    const badgeClass = {'Arrivé au dépôt':'badge-dispo','En transit':'badge-cmd','En commande fournisseur':'badge-rupture'}[c.statut] || 'badge-inactif';
-    return `<tr>
-      <td class="mono" style="font-weight:600">${c.reference}</td>
-      <td><span class="badge ${badgeClass}">${c.statut}</span></td>
-      <td style="color:var(--text3)">${c.date_arrivee_prevue || '—'}</td>
-      <td style="color:var(--text3)">${c.remarque || '—'}</td>
-      <td><button class="btn btn-sm" onclick="deleteConteneur(${c.id})">Suppr.</button></td>
-    </tr>`;
-  }).join('');
-}
-
-function renderHistoryDash(mouvements) {
-  const el = document.getElementById('history-dash');
-  if (!mouvements.length) { el.innerHTML = '<div class="empty">Aucun mouvement</div>'; return; }
-  el.innerHTML = mouvements.map(m => {
-    const isEntree = m.type === 'entree';
-    const uvc = (m.quantite_cartons || 0) * (m.pcb_au_moment || 1);
-    const date = new Date(m.created_at);
-    const dateStr = date.toLocaleDateString('fr', {day:'2-digit',month:'2-digit'}) + ' ' + date.toLocaleTimeString('fr', {hour:'2-digit',minute:'2-digit'});
+function renderHistoryDash(mouvements){
+  const el=document.getElementById('history-dash');
+  if(!mouvements.length){el.innerHTML='<div class="empty">Aucun mouvement</div>';return;}
+  el.innerHTML=mouvements.map(m=>{
+    const ie=m.type==='entree';
+    const d=new Date(m.created_at);
+    const ds=d.toLocaleDateString('fr',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('fr',{hour:'2-digit',minute:'2-digit'});
     return `<div class="history-item">
-      <div class="h-icon ${isEntree?'h-entree':'h-sortie'}">${isEntree?'+':'−'}</div>
+      <div class="h-icon ${ie?'h-entree':'h-sortie'}">${ie?'+':'−'}</div>
       <div class="h-info">
-        <div class="h-prod">${m.produits?.designation || '—'}</div>
-        <div class="h-detail">${isEntree?'Entrée':'Sortie'} · ${m.reference_bl_conteneur || '—'}</div>
+        <div class="h-prod">${m.produits?.designation||'—'}${m.produits?.taille?' '+m.produits.taille:''}</div>
+        <div class="h-detail">${ie?'Entrée':'Sortie'} · ${m.numero_lot||m.reference_bl||'—'}${m.client?' · '+m.client:''}</div>
       </div>
-      <div class="h-qty" style="color:${isEntree?'var(--green)':'var(--red)'}">${isEntree?'+':'−'}${m.quantite_cartons} ctn</div>
-      <div class="h-date">${dateStr}</div>
+      <div class="h-qty" style="color:${ie?'var(--green)':'var(--red)'}">${ie?'+':'−'}${m.quantite_cartons} ctn</div>
+      <div class="h-date">${ds}</div>
     </div>`;
   }).join('');
 }
 
-function renderAlerts(produits) {
-  const alertes = produits.filter(p => p.seuil_alerte && (p.quantite_cartons || 0) <= p.seuil_alerte && p.statut !== 'Inactif');
-  const el = document.getElementById('alerts-list');
-  if (!alertes.length) { el.innerHTML = '<div class="empty">Aucune alerte active</div>'; return; }
-  el.innerHTML = alertes.map(p => `<div class="history-item">
+function renderAlerts(produits){
+  const alertes=produits.filter(p=>p.seuil_alerte&&((p.qte_depot||0)+(p.qte_logistisud||0))<=p.seuil_alerte&&p.statut!=='Inactif');
+  const el=document.getElementById('alerts-list');
+  if(!alertes.length){el.innerHTML='<div class="empty">Aucune alerte</div>';return;}
+  el.innerHTML=alertes.map(p=>`<div class="history-item">
     <div class="h-icon h-sortie">!</div>
     <div class="h-info">
-      <div class="h-prod">${p.designation}</div>
-      <div class="h-detail">${p.reference || ''} · ${p.quantite_cartons || 0} cartons restants</div>
+      <div class="h-prod">${p.designation}${p.taille?' '+p.taille:''}</div>
+      <div class="h-detail">${(p.qte_depot||0)+(p.qte_logistisud||0)} cartons · Seuil: ${p.seuil_alerte}</div>
     </div>
     <div class="h-qty" style="color:var(--red)">Seuil: ${p.seuil_alerte}</div>
   </div>`).join('');
 }
 
-function loadDashboard() { /* handled by loadProduits + loadMouvements */ }
-
-// SELECTS
-function fillSelects(produits) {
-  const opts = produits.filter(p => p.statut !== 'Inactif').map(p => `<option value="${p.id}" data-pcb="${p.pcb}">${p.designation} (${p.reference || p.id})</option>`).join('');
-  ['entree-produit','sortie-produit'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.innerHTML = '<option value="">Sélectionner...</option>' + opts;
-  });
+function fillSelects(p){
+  const opts=p.filter(x=>x.statut!=='Inactif').map(x=>`<option value="${x.id}" data-pcb="${x.pcb}" data-uvc="${x.uvc_paquet||1}">${x.designation}${x.taille?' '+x.taille:''} (${x.reference||x.id})</option>`).join('');
+  ['entree-produit','sortie-produit'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<option value="">Sélectionner...</option>'+opts;});
 }
 
-// MODALS
-function openModalEntree() { document.getElementById('modal-entree').style.display='flex'; }
-function openModalSortie() { document.getElementById('modal-sortie').style.display='flex'; }
-function openModalProduit() {
-  document.getElementById('produit-id').value = '';
-  ['prod-designation','prod-reference','prod-ean','prod-pcb','prod-seuil'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('prod-statut').value = 'Disponible';
-  document.querySelector('#modal-produit .modal-title').textContent = 'Nouveau produit';
+function fillTCSelect(tc){
+  const opts=tc.filter(t=>t.etape!=='CLO').map(t=>`<option value="${t.id}">${t.ref_li||'—'} (${t.fournisseur||''})</option>`).join('');
+  const el=document.getElementById('entree-tc-ref');if(el)el.innerHTML='<option value="">Aucun</option>'+opts;
+}
+
+function getSelOpt(id){const s=document.getElementById(id);return s?s.options[s.selectedIndex]:null;}
+function updateEntreeCalc(){
+  const opt=getSelOpt('entree-produit');const qte=parseInt(document.getElementById('entree-qte').value)||0;
+  const pcb=opt?parseInt(opt.dataset.pcb)||1:1;const uvc=opt?parseInt(opt.dataset.uvc)||1:1;
+  const c=document.getElementById('entree-uvc-info');
+  if(opt&&opt.value&&qte>0){c.style.display='block';c.textContent=`= ${(qte*pcb*uvc).toLocaleString('fr')} UVC (${qte} ctn × ${pcb} paquets × ${uvc} UVC/paquet)`;}
+  else c.style.display='none';
+}
+function updateSortieCalc(){
+  const opt=getSelOpt('sortie-produit');const qte=parseInt(document.getElementById('sortie-qte').value)||0;
+  const pcb=opt?parseInt(opt.dataset.pcb)||1:1;const uvc=opt?parseInt(opt.dataset.uvc)||1:1;
+  document.getElementById('sortie-uvc-display').value=qte>0?(qte*pcb*uvc).toLocaleString('fr')+' UVC':'';
+}
+function updateDepotUVC(){
+  if(!currentDepotProduit)return;
+  const qte=parseInt(document.getElementById('depot-sortie-qte').value)||0;
+  document.getElementById('depot-sortie-uvc').value=qte>0?(qte*(currentDepotProduit.pcb||1)*(currentDepotProduit.uvc_paquet||1)).toLocaleString('fr')+' UVC':'';
+}
+
+function openModalEntree(){document.getElementById('modal-entree').style.display='flex';}
+function openModalSortie(){document.getElementById('modal-sortie').style.display='flex';}
+function openModalProduit(){
+  document.getElementById('produit-id').value='';
+  ['prod-designation','prod-reference','prod-ean','prod-pcb','prod-uvc-paquet','prod-seuil'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('prod-taille').value='';document.getElementById('prod-statut').value='Disponible';
+  document.getElementById('prod-modal-title').textContent='Nouveau produit';
   document.getElementById('modal-produit').style.display='flex';
 }
-function openModalConteneur() { document.getElementById('modal-conteneur').style.display='flex'; }
-function closeModal(id) { document.getElementById(id).style.display='none'; }
-function closeModalIfOutside(e, id) { if (e.target.id === id) closeModal(id); }
-
-function openSortieDepot(prodId) {
-  currentDepotProduit = allProduits.find(p => p.id === prodId);
-  if (!currentDepotProduit) return;
-  document.getElementById('sortie-depot-title').textContent = 'Sortie — ' + currentDepotProduit.designation;
-  document.getElementById('depot-sortie-bl').value = '';
-  document.getElementById('depot-sortie-qte').value = '';
-  document.getElementById('depot-sortie-uvc').value = '';
-  document.getElementById('depot-sortie-remarque').value = '';
+function openModalTC(){
+  document.getElementById('tc-id').value='';
+  ['tc-ref-li','tc-fournisseur','tc-client','tc-numero','tc-lot','tc-etd','tc-eta','tc-compagnie','tc-designation','tc-maj'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('tc-etape').value='INSTRU';document.getElementById('tc-type').value='40HC';document.getElementById('tc-stock-link').value='non';
+  document.getElementById('tc-modal-title').textContent='Nouveau TC';
+  document.getElementById('modal-tc').style.display='flex';
+}
+function closeModal(id){document.getElementById(id).style.display='none';}
+function closeModalIfOutside(e,id){if(e.target.id===id)closeModal(id);}
+function openSortieDepot(prodId){
+  currentDepotProduit=allProduits.find(p=>p.id===prodId);if(!currentDepotProduit)return;
+  document.getElementById('sortie-depot-title').textContent='Sortie — '+currentDepotProduit.designation+(currentDepotProduit.taille?' ('+currentDepotProduit.taille+')':'');
+  ['depot-sortie-bl','depot-sortie-qte','depot-sortie-uvc','depot-sortie-client','depot-sortie-lot','depot-sortie-dlc','depot-sortie-remarque'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('modal-sortie-depot').style.display='flex';
 }
-
-function showDetailDepot(prodId) {
-  const p = allProduits.find(x => x.id === prodId);
-  if (!p) return;
-  const uvc = (p.quantite_cartons || 0) * (p.pcb || 1);
-  showToast(`${p.designation} · ${uvc.toLocaleString('fr')} UVC · ${p.quantite_cartons || 0} cartons`, 'success');
+function openEntreeFromTC(tcId){
+  const tc=allTC.find(t=>t.id===tcId);if(!tc)return;
+  document.getElementById('entree-lot').value=tc.ref_li||'';
+  document.getElementById('entree-tc-ref').value=tcId;
+  document.getElementById('modal-entree').style.display='flex';
 }
 
-// UVC CALCS
-function updateEntreeUVC() {
-  const sel = document.getElementById('entree-produit');
-  const qte = parseInt(document.getElementById('entree-qte').value) || 0;
-  const opt = sel.options[sel.selectedIndex];
-  const pcb = opt ? parseInt(opt.dataset.pcb) || 1 : 1;
-  const calc = document.getElementById('entree-uvc-calc');
-  if (sel.value && qte > 0) {
-    calc.style.display = 'block';
-    calc.textContent = `= ${(qte * pcb).toLocaleString('fr')} UVC (${qte} cartons × ${pcb} UVC/carton)`;
-  } else calc.style.display = 'none';
-}
-
-function updateSortieUVC() {
-  const sel = document.getElementById('sortie-produit');
-  const qte = parseInt(document.getElementById('sortie-qte').value) || 0;
-  const opt = sel.options[sel.selectedIndex];
-  const pcb = opt ? parseInt(opt.dataset.pcb) || 1 : 1;
-  document.getElementById('sortie-uvc-display').value = qte > 0 ? (qte * pcb).toLocaleString('fr') + ' UVC' : '';
-}
-
-function updateDepotUVC() {
-  if (!currentDepotProduit) return;
-  const qte = parseInt(document.getElementById('depot-sortie-qte').value) || 0;
-  document.getElementById('depot-sortie-uvc').value = qte > 0 ? (qte * (currentDepotProduit.pcb || 1)).toLocaleString('fr') + ' UVC' : '';
-}
-
-// ACTIONS
-async function validerEntree() {
-  const prodId = document.getElementById('entree-produit').value;
-  const qte = parseInt(document.getElementById('entree-qte').value);
-  if (!prodId || !qte || qte < 1) { showToast('Produit et quantité requis', 'error'); return; }
-  const produit = allProduits.find(p => p.id == prodId);
-  if (!produit) return;
-
-  const { error: mvErr } = await sb.from('mouvements').insert({
-    produit_id: parseInt(prodId),
-    type: 'entree',
-    quantite_cartons: qte,
-    pcb_au_moment: produit.pcb || 1,
-    reference_bl_conteneur: document.getElementById('entree-conteneur').value || null,
-    remarque: document.getElementById('entree-remarque').value || null,
-    utilisateur: currentRole === 'depot' ? 'Entrepôt' : 'Bureau',
-    dlc: document.getElementById('entree-dlc').value || null
+async function validerEntree(){
+  const prodId=document.getElementById('entree-produit').value;
+  const qte=parseInt(document.getElementById('entree-qte').value);
+  const emplacement=document.getElementById('entree-emplacement').value;
+  if(!prodId||!qte||qte<1){showToast('Produit et quantité requis','error');return;}
+  const produit=allProduits.find(p=>p.id==prodId);if(!produit)return;
+  const{error:mvErr}=await sb.from('mouvements').insert({
+    produit_id:parseInt(prodId),type:'entree',quantite_cartons:qte,
+    pcb_moment:produit.pcb||1,uvc_paquet_moment:produit.uvc_paquet||1,emplacement,
+    numero_lot:document.getElementById('entree-lot').value||null,
+    dlc_lot:document.getElementById('entree-dlc').value||null,
+    remarque:document.getElementById('entree-remarque').value||null,
+    utilisateur:currentRole==='depot'?'Entrepôt':'Bureau'
   });
-  if (mvErr) { handleError(mvErr); return; }
-
-  const newQte = (produit.quantite_cartons || 0) + qte;
-  const { error: upErr } = await sb.from('produits').update({ quantite_cartons: newQte, dlc: document.getElementById('entree-dlc').value || produit.dlc }).eq('id', parseInt(prodId));
-  if (upErr) { handleError(upErr); return; }
-
+  if(mvErr){handleError(mvErr);return;}
+  const field=emplacement==='logistisud'?'qte_logistisud':'qte_depot';
+  const{error:upErr}=await sb.from('produits').update({[field]:(produit[field]||0)+qte}).eq('id',parseInt(prodId));
+  if(upErr){handleError(upErr);return;}
   closeModal('modal-entree');
-  showToast(`Entrée validée : +${qte} cartons de ${produit.designation}`, 'success');
-  await loadAll();
+  showToast(`Entrée validée : +${qte} ctn → ${emplacement}`,'success');
+  await loadProduits();await loadMouvements();
 }
 
-async function validerSortie() {
-  const prodId = document.getElementById('sortie-produit').value;
-  const qte = parseInt(document.getElementById('sortie-qte').value);
-  const bl = document.getElementById('sortie-bl').value;
-  if (!prodId || !qte || !bl) { showToast('Produit, quantité et N° BL requis', 'error'); return; }
-  const produit = allProduits.find(p => p.id == prodId);
-  if (!produit) return;
-  if ((produit.quantite_cartons || 0) < qte) { showToast('Stock insuffisant !', 'error'); return; }
-
-  const { error: mvErr } = await sb.from('mouvements').insert({
-    produit_id: parseInt(prodId), type: 'sortie', quantite_cartons: qte,
-    pcb_au_moment: produit.pcb || 1, reference_bl_conteneur: bl,
-    remarque: document.getElementById('sortie-remarque').value || null,
-    utilisateur: currentRole === 'depot' ? 'Entrepôt' : 'Bureau'
+async function validerSortie(){
+  const prodId=document.getElementById('sortie-produit').value;
+  const qte=parseInt(document.getElementById('sortie-qte').value);
+  const bl=document.getElementById('sortie-bl').value;
+  const emplacement=document.getElementById('sortie-emplacement').value;
+  if(!prodId||!qte||!bl){showToast('Produit, quantité et N° BL requis','error');return;}
+  const produit=allProduits.find(p=>p.id==prodId);if(!produit)return;
+  const field=emplacement==='logistisud'?'qte_logistisud':'qte_depot';
+  if((produit[field]||0)<qte){showToast('Stock insuffisant !','error');return;}
+  const{error:mvErr}=await sb.from('mouvements').insert({
+    produit_id:parseInt(prodId),type:'sortie',quantite_cartons:qte,
+    pcb_moment:produit.pcb||1,uvc_paquet_moment:produit.uvc_paquet||1,emplacement,
+    numero_lot:document.getElementById('sortie-lot').value||null,
+    dlc_lot:document.getElementById('sortie-dlc-lot').value||null,
+    canal:document.getElementById('sortie-canal').value,
+    client:document.getElementById('sortie-client').value||null,
+    reference_bl:bl,remarque:document.getElementById('sortie-remarque').value||null,
+    utilisateur:currentRole==='depot'?'Entrepôt':'Bureau'
   });
-  if (mvErr) { handleError(mvErr); return; }
-
-  const { error: upErr } = await sb.from('produits').update({ quantite_cartons: (produit.quantite_cartons || 0) - qte }).eq('id', parseInt(prodId));
-  if (upErr) { handleError(upErr); return; }
-
-  closeModal('modal-sortie');
-  showToast(`Sortie validée : −${qte} cartons de ${produit.designation}`, 'success');
-  await loadAll();
+  if(mvErr){handleError(mvErr);return;}
+  const{error:upErr}=await sb.from('produits').update({[field]:(produit[field]||0)-qte}).eq('id',parseInt(prodId));
+  if(upErr){handleError(upErr);return;}
+  closeModal('modal-sortie');showToast(`Sortie validée : −${qte} ctn → BL ${bl}`,'success');
+  await loadProduits();await loadMouvements();
 }
 
-async function validerSortieDepot() {
-  if (!currentDepotProduit) return;
-  const qte = parseInt(document.getElementById('depot-sortie-qte').value);
-  const bl = document.getElementById('depot-sortie-bl').value;
-  if (!qte || !bl) { showToast('Quantité et N° BL requis', 'error'); return; }
-  if ((currentDepotProduit.quantite_cartons || 0) < qte) { showToast('Stock insuffisant !', 'error'); return; }
-
-  const { error: mvErr } = await sb.from('mouvements').insert({
-    produit_id: currentDepotProduit.id, type: 'sortie', quantite_cartons: qte,
-    pcb_au_moment: currentDepotProduit.pcb || 1, reference_bl_conteneur: bl,
-    remarque: document.getElementById('depot-sortie-remarque').value || null,
-    utilisateur: 'Entrepôt'
+async function validerSortieDepot(){
+  if(!currentDepotProduit)return;
+  const qte=parseInt(document.getElementById('depot-sortie-qte').value);
+  const bl=document.getElementById('depot-sortie-bl').value;
+  if(!qte||!bl){showToast('Quantité et N° BL requis','error');return;}
+  if((currentDepotProduit.qte_depot||0)<qte){showToast('Stock insuffisant au dépôt !','error');return;}
+  const{error:mvErr}=await sb.from('mouvements').insert({
+    produit_id:currentDepotProduit.id,type:'sortie',quantite_cartons:qte,
+    pcb_moment:currentDepotProduit.pcb||1,uvc_paquet_moment:currentDepotProduit.uvc_paquet||1,
+    emplacement:'depot',numero_lot:document.getElementById('depot-sortie-lot').value||null,
+    dlc_lot:document.getElementById('depot-sortie-dlc').value||null,
+    canal:document.getElementById('depot-sortie-canal').value,
+    client:document.getElementById('depot-sortie-client').value||null,
+    reference_bl:bl,remarque:document.getElementById('depot-sortie-remarque').value||null,
+    utilisateur:'Entrepôt'
   });
-  if (mvErr) { handleError(mvErr); return; }
-
-  const { error: upErr } = await sb.from('produits').update({ quantite_cartons: (currentDepotProduit.quantite_cartons || 0) - qte }).eq('id', currentDepotProduit.id);
-  if (upErr) { handleError(upErr); return; }
-
-  closeModal('modal-sortie-depot');
-  showToast(`Sortie validée : −${qte} cartons`, 'success');
-  await loadAll();
+  if(mvErr){handleError(mvErr);return;}
+  const{error:upErr}=await sb.from('produits').update({qte_depot:(currentDepotProduit.qte_depot||0)-qte}).eq('id',currentDepotProduit.id);
+  if(upErr){handleError(upErr);return;}
+  closeModal('modal-sortie-depot');showToast(`Sortie validée : −${qte} cartons`,'success');
+  await loadProduits();await loadMouvements();
 }
 
-async function saveProduit() {
-  const designation = document.getElementById('prod-designation').value.trim();
-  const reference = document.getElementById('prod-reference').value.trim();
-  const pcb = parseInt(document.getElementById('prod-pcb').value);
-  if (!designation || !pcb) { showToast('Désignation et PCB requis', 'error'); return; }
-
-  const data = {
-    designation, reference: reference || null,
-    ean: document.getElementById('prod-ean').value.trim() || null,
-    pcb, seuil_alerte: parseInt(document.getElementById('prod-seuil').value) || null,
-    statut: document.getElementById('prod-statut').value
-  };
-
-  const editId = document.getElementById('produit-id').value;
+async function saveTC(){
+  const refLi=document.getElementById('tc-ref-li').value.trim();
+  if(!refLi){showToast('Référence LI requise','error');return;}
+  const data={ref_li:refLi,etape:document.getElementById('tc-etape').value,
+    fournisseur:document.getElementById('tc-fournisseur').value||null,
+    client:document.getElementById('tc-client').value||null,
+    numero_tc:document.getElementById('tc-numero').value||null,
+    numero_lot:document.getElementById('tc-lot').value||null,
+    etd:document.getElementById('tc-etd').value||null,
+    eta:document.getElementById('tc-eta').value||null,
+    type_tc:document.getElementById('tc-type').value,
+    compagnie:document.getElementById('tc-compagnie').value||null,
+    designation:document.getElementById('tc-designation').value||null,
+    maj_alerte:document.getElementById('tc-maj').value||null,
+    lien_stock:document.getElementById('tc-stock-link').value};
+  const editId=document.getElementById('tc-id').value;
   let error;
-  if (editId) {
-    ({ error } = await sb.from('produits').update(data).eq('id', parseInt(editId)));
-  } else {
-    ({ error } = await sb.from('produits').insert({ ...data, quantite_cartons: 0 }));
-  }
-  if (error) { handleError(error); return; }
-
-  closeModal('modal-produit');
-  showToast(editId ? 'Produit mis à jour' : 'Produit ajouté', 'success');
-  await loadProduits();
+  if(editId){({error}=await sb.from('conteneurs_tc').update(data).eq('id',parseInt(editId)));}
+  else{({error}=await sb.from('conteneurs_tc').insert(data));}
+  if(error){handleError(error);return;}
+  closeModal('modal-tc');showToast(editId?'TC mis à jour':'TC ajouté','success');await loadTC();
 }
 
-function editProduit(id) {
-  const p = allProduits.find(x => x.id === id);
-  if (!p) return;
-  document.getElementById('produit-id').value = p.id;
-  document.getElementById('prod-designation').value = p.designation;
-  document.getElementById('prod-reference').value = p.reference || '';
-  document.getElementById('prod-ean').value = p.ean || '';
-  document.getElementById('prod-pcb').value = p.pcb || '';
-  document.getElementById('prod-seuil').value = p.seuil_alerte || '';
-  document.getElementById('prod-statut').value = p.statut;
-  document.querySelector('#modal-produit .modal-title').textContent = 'Modifier — ' + p.designation;
-  document.getElementById('modal-produit').style.display = 'flex';
+function editTC(id){
+  const t=allTC.find(x=>x.id===id);if(!t)return;
+  document.getElementById('tc-id').value=t.id;
+  document.getElementById('tc-ref-li').value=t.ref_li||'';
+  document.getElementById('tc-etape').value=t.etape||'INSTRU';
+  document.getElementById('tc-fournisseur').value=t.fournisseur||'';
+  document.getElementById('tc-client').value=t.client||'';
+  document.getElementById('tc-numero').value=t.numero_tc||'';
+  document.getElementById('tc-lot').value=t.numero_lot||'';
+  document.getElementById('tc-etd').value=t.etd||'';
+  document.getElementById('tc-eta').value=t.eta||'';
+  document.getElementById('tc-type').value=t.type_tc||'40HC';
+  document.getElementById('tc-compagnie').value=t.compagnie||'';
+  document.getElementById('tc-designation').value=t.designation||'';
+  document.getElementById('tc-maj').value=t.maj_alerte||'';
+  document.getElementById('tc-stock-link').value=t.lien_stock||'non';
+  document.getElementById('tc-modal-title').textContent='Modifier TC — '+t.ref_li;
+  document.getElementById('modal-tc').style.display='flex';
 }
 
-async function deleteProduit(id, nom) {
-  if (!confirm(`Supprimer "${nom}" ? Cette action est irréversible.`)) return;
-  const { error } = await sb.from('produits').delete().eq('id', id);
-  if (error) { handleError(error); return; }
-  showToast('Produit supprimé', 'success');
-  await loadProduits();
+async function cloreTC(id){
+  const{error}=await sb.from('conteneurs_tc').update({etape:'CLO'}).eq('id',id);
+  if(error){handleError(error);return;}
+  showToast('TC clôturé','success');await loadTC();
 }
 
-async function saveConteneur() {
-  const ref = document.getElementById('cnt-ref').value.trim();
-  if (!ref) { showToast('Référence conteneur requise', 'error'); return; }
-  const { error } = await sb.from('conteneurs').insert({
-    reference: ref,
-    statut: document.getElementById('cnt-statut').value,
-    date_arrivee_prevue: document.getElementById('cnt-date').value || null,
-    remarque: document.getElementById('cnt-remarque').value || null
-  });
-  if (error) { handleError(error); return; }
-  closeModal('modal-conteneur');
-  showToast('Conteneur ajouté', 'success');
-  await loadConteneurs();
+async function deleteTC(id){
+  if(!confirm('Supprimer ce TC ?'))return;
+  const{error}=await sb.from('conteneurs_tc').delete().eq('id',id);
+  if(error){handleError(error);return;}
+  showToast('TC supprimé','success');await loadTC();
 }
 
-async function deleteConteneur(id) {
-  if (!confirm('Supprimer ce conteneur ?')) return;
-  const { error } = await sb.from('conteneurs').delete().eq('id', id);
-  if (error) { handleError(error); return; }
-  showToast('Conteneur supprimé', 'success');
-  await loadConteneurs();
+async function saveProduit(){
+  const designation=document.getElementById('prod-designation').value.trim();
+  const pcb=parseInt(document.getElementById('prod-pcb').value);
+  if(!designation||!pcb){showToast('Désignation et PCB requis','error');return;}
+  const data={designation,reference:document.getElementById('prod-reference').value.trim()||null,
+    taille:document.getElementById('prod-taille').value||null,
+    ean:document.getElementById('prod-ean').value.trim()||null,
+    pcb,uvc_paquet:parseInt(document.getElementById('prod-uvc-paquet').value)||1,
+    seuil_alerte:parseInt(document.getElementById('prod-seuil').value)||null,
+    statut:document.getElementById('prod-statut').value};
+  const editId=document.getElementById('produit-id').value;
+  let error;
+  if(editId){({error}=await sb.from('produits').update(data).eq('id',parseInt(editId)));}
+  else{({error}=await sb.from('produits').insert({...data,qte_depot:0,qte_logistisud:0}));}
+  if(error){handleError(error);return;}
+  closeModal('modal-produit');showToast(editId?'Produit mis à jour':'Produit ajouté','success');await loadProduits();
 }
 
-// FILTERS
-function filterStock() {
-  const q = document.getElementById('stock-search').value.toLowerCase();
-  stockFilter = q;
-  applyFilters();
+function editProduit(id){
+  const p=allProduits.find(x=>x.id===id);if(!p)return;
+  document.getElementById('produit-id').value=p.id;
+  document.getElementById('prod-designation').value=p.designation;
+  document.getElementById('prod-reference').value=p.reference||'';
+  document.getElementById('prod-taille').value=p.taille||'';
+  document.getElementById('prod-ean').value=p.ean||'';
+  document.getElementById('prod-pcb').value=p.pcb||'';
+  document.getElementById('prod-uvc-paquet').value=p.uvc_paquet||'';
+  document.getElementById('prod-seuil').value=p.seuil_alerte||'';
+  document.getElementById('prod-statut').value=p.statut;
+  document.getElementById('prod-modal-title').textContent='Modifier — '+p.designation+(p.taille?' '+p.taille:'');
+  document.getElementById('modal-produit').style.display='flex';
 }
 
-function filterByStatus(status, el) {
-  statusFilter = status;
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  applyFilters();
+async function deleteProduit(id,nom){
+  if(!confirm(`Supprimer "${nom}" ?`))return;
+  const{error}=await sb.from('produits').delete().eq('id',id);
+  if(error){handleError(error);return;}
+  showToast('Produit supprimé','success');await loadProduits();
 }
 
-function applyFilters() {
-  let filtered = allProduits;
-  if (statusFilter) filtered = filtered.filter(p => p.statut === statusFilter);
-  if (stockFilter) filtered = filtered.filter(p =>
-    (p.designation||'').toLowerCase().includes(stockFilter) ||
-    (p.reference||'').toLowerCase().includes(stockFilter) ||
-    (p.ean||'').toLowerCase().includes(stockFilter)
-  );
-  renderStockTable(filtered);
+function filterStock(){stockFilter=document.getElementById('stock-search').value.toLowerCase();renderStockTable(allProduits);}
+function filterByStatus(s,el){statusFilter=s;document.querySelectorAll('#stock-chips .chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderStockTable(allProduits);}
+function filterTC(){tcSearchFilter=document.getElementById('tc-search').value;renderTCList(allTC);}
+function filterTCByEtape(e,el){tcEtapeFilter=e;document.querySelectorAll('#tc-chips .chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderTCList(allTC);}
+function filterDepot(){
+  const q=document.getElementById('depot-search').value.toLowerCase();
+  document.querySelectorAll('.depot-card').forEach(c=>{c.style.display=(!q||c.dataset.designation.includes(q)||c.dataset.ean.includes(q)||c.dataset.taille.includes(q))?'':'none';});
 }
 
-function filterDepot() {
-  const q = document.getElementById('depot-search').value.toLowerCase();
-  document.querySelectorAll('.depot-card').forEach(card => {
-    const matches = card.dataset.designation.includes(q) || card.dataset.ean.includes(q);
-    card.style.display = matches ? '' : 'none';
-  });
+function exportCSV(){
+  const h=['Désignation','Taille','Référence','EAN','PCB','UVC/paquet','Dépôt (ctn)','Logistisud (ctn)','Total UVC','Statut','DLC','Seuil'];
+  const rows=allProduits.map(p=>{const t=(p.qte_depot||0)+(p.qte_logistisud||0);return[p.designation,p.taille||'',p.reference||'',p.ean||'',p.pcb||'',p.uvc_paquet||'',p.qte_depot||0,p.qte_logistisud||0,t*(p.pcb||1)*(p.uvc_paquet||1),p.statut,p.dlc||'',p.seuil_alerte||''];});
+  const csv=[h,...rows].map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='flowstock_export.csv';a.click();URL.revokeObjectURL(url);
+  showToast('Export CSV téléchargé','success');
 }
 
-// EXPORT
-function exportCSV() {
-  const headers = ['Désignation','Référence','EAN','PCB','Stock (cartons)','UVC dispo','Statut','DLC','Seuil alerte'];
-  const rows = allProduits.map(p => [
-    p.designation, p.reference||'', p.ean||'', p.pcb||'',
-    p.quantite_cartons||0, (p.quantite_cartons||0)*(p.pcb||1),
-    p.statut, p.dlc||'', p.seuil_alerte||''
-  ]);
-  const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n');
-  const blob = new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href=url; a.download='flowstock_export.csv'; a.click();
-  URL.revokeObjectURL(url);
-  showToast('Export CSV téléchargé', 'success');
-}
-
-// NAVIGATION
-function showView(id, navEl) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+function showView(id,navEl){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('view-'+id).classList.add('active');
-  if (navEl) navEl.classList.add('active');
-  if (id === 'mouvements') loadMouvements();
-  if (id === 'conteneurs') loadConteneurs();
+  if(navEl)navEl.classList.add('active');
+  if(id==='mouvements')loadMouvements();
+  if(id==='grille')loadTC();
 }
 
-function setRole(role) {
-  currentRole = role;
-  document.getElementById('role-bureau').classList.toggle('active', role==='bureau');
-  document.getElementById('role-depot').classList.toggle('active', role==='depot');
-  if (role === 'depot') showView('depot', document.querySelector('.nav-item[onclick*="depot"]'));
+function setRole(role){
+  currentRole=role;
+  document.getElementById('role-bureau').classList.toggle('active',role==='bureau');
+  document.getElementById('role-depot').classList.toggle('active',role==='depot');
+  if(role==='depot')showView('depot',document.querySelector('.nav-item[onclick*="depot"]'));
 }
 
-// TOAST
-function showToast(msg, type='success') {
-  const toast = document.getElementById('toast');
-  document.getElementById('toast-msg').textContent = msg;
-  toast.className = 'toast ' + type;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 3500);
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  document.getElementById('toast-msg').textContent=msg;
+  t.className='toast '+type;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
 }
 
-function handleError(error) {
-  console.error(error);
-  const msg = error.message || 'Erreur inconnue';
-  if (msg.includes('does not exist') || msg.includes('relation')) {
-    showToast('Tables manquantes — voir instructions SQL', 'error');
-  } else {
-    showToast('Erreur : ' + msg, 'error');
-  }
-}
-
-// LOGIN
-const APP_PASSWORD = 'flowstock2024';
-const SESSION_KEY = 'fs_auth';
-
-function checkLogin() {
-  const pwd = document.getElementById('login-pwd').value;
-  const errEl = document.getElementById('login-error');
-  const input = document.getElementById('login-pwd');
-  if (pwd === APP_PASSWORD) {
-    sessionStorage.setItem(SESSION_KEY, '1');
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('main-app').style.display = 'flex';
-    init();
-  } else {
-    errEl.textContent = 'Mot de passe incorrect';
-    input.classList.add('error');
-    input.value = '';
-    setTimeout(() => { errEl.textContent = ''; input.classList.remove('error'); }, 2500);
-  }
-}
-
-if (sessionStorage.getItem(SESSION_KEY) === '1') {
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('main-app').style.display = 'flex';
-  init();
+function handleError(e){
+  console.error(e);
+  const msg=e.message||'Erreur inconnue';
+  if(msg.includes('does not exist')||msg.includes('relation')){showToast('Table manquante — relancer le SQL Supabase','error');}
+  else showToast('Erreur: '+msg.substring(0,60),'error');
 }
 </script>
 </body>
