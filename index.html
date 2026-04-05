@@ -406,7 +406,7 @@ tbody tr:hover td{background:rgba(255,255,255,0.02);}
                 <th>MARCHANDISE</th>
                 <th>QTÉ</th>
                 <th onclick="sortTC('numero_tc')">N° TC / LOT</th>
-                <th onclick="sortTC('etd_date')">ETD</th>
+                <th onclick="sortTC('etd')">ETD</th>
                 <th onclick="sortTC('eta')">ETA</th>
                 <th>TYPE</th>
                 <th>LIGNE</th>
@@ -863,7 +863,7 @@ function renderTCTable(){
   tbody.innerHTML=page.map(t=>{
     const eb=ETAPE_BADGE[t.etape]||'badge-gray';
     const eta=t.eta?new Date(t.eta).toLocaleDateString('fr',{day:'2-digit',month:'2-digit',year:'2-digit'}):'—';
-    const etd=t.etd_date?new Date(t.etd_date).toLocaleDateString('fr',{day:'2-digit',month:'2-digit',year:'2-digit'}):(t.etd||'—');
+    const etd=t.etd||'—';
     const dateCde=t.date_commande?new Date(t.date_commande).toLocaleDateString('fr',{day:'2-digit',month:'2-digit',year:'2-digit'}):'—';
     const stockTag=t.lien_stock==='oui'?`<span style="font-size:10px;background:var(--green-dim);color:var(--green);padding:1px 5px;border-radius:3px">STK</span>`:'';
     // ETA avec indicateur de retard
@@ -1230,7 +1230,6 @@ async function saveTC(){
     numero_tc:document.getElementById('tc-numero').value||null,
     numero_lot:document.getElementById('tc-lot').value||null,
     etd:document.getElementById('tc-etd').value||null,
-    etd_date:document.getElementById('tc-etd').value||null,
     eta:document.getElementById('tc-eta').value||null,
     type_tc:document.getElementById('tc-type').value,
     compagnie:document.getElementById('tc-compagnie').value||null,
