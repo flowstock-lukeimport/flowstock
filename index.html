@@ -211,6 +211,34 @@ tbody tr:hover td{background:rgba(255,255,255,0.02);}
 .stock-paq{font-size:11px;color:var(--text3);}
 .stock-low{color:var(--red)!important;}
 
+/* BADGES ETAPES TC - couleurs fidèles au tableau */
+.badge-ur{background:#ffff00;color:#c00000;border:1px solid #e6e600;font-weight:800;}
+.badge-ur::before{background:#c00000;}
+.badge-art{background:#dae8fc;color:#1a4a7a;border:1px solid #b8d4f0;}
+.badge-art::before{background:#1a4a7a;}
+.badge-instru{background:#00a651;color:#fff;border:1px solid #007a3d;}
+.badge-instru::before{background:#fff;}
+.badge-booking{background:#f4b8c1;color:#c00000;border:1px solid #e8909c;}
+.badge-booking::before{background:#c00000;}
+.badge-photos{background:#fce4d6;color:#8b3a1a;border:1px solid #f0c8b0;}
+.badge-photos::before{background:#8b3a1a;}
+.badge-etd{background:#92d4c8;color:#1a5a50;border:1px solid #70c0b4;}
+.badge-etd::before{background:#1a5a50;}
+.badge-cd{background:#4472c4;color:#fff;border:1px solid #2a52a4;}
+.badge-cd::before{background:#fff;}
+.badge-ori{background:#c0504d;color:#fff;border:1px solid #a03030;}
+.badge-ori::before{background:#fff;}
+.badge-telex{background:#b4a0c8;color:#3a1a5a;border:1px solid #9880b0;}
+.badge-telex::before{background:#3a1a5a;}
+.badge-eta{background:#f2f2f2;color:#444;border:1px solid #d8d8d8;}
+.badge-eta::before{background:#444;}
+.badge-sui{background:#ccc0da;color:#3a2a50;border:1px solid #b0a0c4;}
+.badge-sui::before{background:#3a2a50;}
+.badge-dlr{background:#ffd966;color:#7a5000;border:1px solid #e8c040;}
+.badge-dlr::before{background:#7a5000;}
+.badge-liv{background:#fce4ec;color:#8b1a3a;border:1px solid #f0c0d0;}
+.badge-liv::before{background:#8b1a3a;}
+
 /* PAGINATION */
 .pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--border);font-size:13px;color:var(--text3);}
 .pagination-btns{display:flex;gap:6px;}
@@ -327,8 +355,9 @@ tbody tr:hover td{background:rgba(255,255,255,0.02);}
         <div class="metrics">
           <div class="metric-card"><div class="metric-label">Références actives</div><div class="metric-value" id="m-refs">—</div><div class="metric-sub">produits</div></div>
           <div class="metric-card"><div class="metric-label">Paquets dispo</div><div class="metric-value" id="m-paq">—</div><div class="metric-sub">total stock</div></div>
-          <div class="metric-card info"><div class="metric-label">TC en cours</div><div class="metric-value" id="m-tc">—</div><div class="metric-sub">conteneurs actifs</div></div>
+          <div class="metric-card info"><div class="metric-label">TC en cours</div><div class="metric-value" id="m-tc">—</div><div class="metric-sub" id="m-tc-sub">conteneurs actifs</div></div>
           <div class="metric-card alert"><div class="metric-label">Alertes stock</div><div class="metric-value" id="m-alerte">—</div><div class="metric-sub">sous seuil / rupture</div></div>
+          <div class="metric-card" style="grid-column:span 2"><div class="metric-label">TC cette année</div><div class="metric-value" id="m-tc-annee">—</div><div class="metric-sub" id="m-tc-annee-sub">conteneurs créés en <span id="m-annee"></span></div></div>
         </div>
         <div class="two-col">
           <div class="card"><div class="card-title">Alertes stock bas</div><div id="alerts-list"><div class="loading"><div class="spinner"></div></div></div></div>
@@ -349,11 +378,20 @@ tbody tr:hover td{background:rgba(255,255,255,0.02);}
       <div class="content">
         <div class="chips" id="tc-chips">
           <button class="chip active" onclick="filterTCByEtape('',this)">Tous</button>
+          <button class="chip" onclick="filterTCByEtape('UR',this)">UR</button>
+          <button class="chip" onclick="filterTCByEtape('ART',this)">ART</button>
           <button class="chip" onclick="filterTCByEtape('INSTRU',this)">INSTRU</button>
+          <button class="chip" onclick="filterTCByEtape('BOOKING',this)">BOOKING</button>
           <button class="chip" onclick="filterTCByEtape('PHOTOS',this)">PHOTOS</button>
+          <button class="chip" onclick="filterTCByEtape('ETD',this)">ETD</button>
+          <button class="chip" onclick="filterTCByEtape('CD',this)">CD</button>
+          <button class="chip" onclick="filterTCByEtape('ORI',this)">ORI</button>
+          <button class="chip" onclick="filterTCByEtape('TELEX',this)">TELEX</button>
+          <button class="chip" onclick="filterTCByEtape('ETA',this)">ETA</button>
+          <button class="chip" onclick="filterTCByEtape('SUI',this)">SUI</button>
           <button class="chip" onclick="filterTCByEtape('DLR',this)">DLR</button>
+          <button class="chip" onclick="filterTCByEtape('LIV',this)">LIV</button>
           <button class="chip" onclick="filterTCByEtape('CLO',this)">CLO</button>
-          <button class="chip" onclick="filterTCByEtape('OFFRE',this)">OFFRE</button>
         </div>
         <div class="table-wrap table-scroll">
           <table class="tc-table">
@@ -713,13 +751,25 @@ function updateMetrics(){
 
 function updateTCMetrics(){
   const actifs=allTC.filter(t=>t.etape!=='CLO');
+  const clos=allTC.filter(t=>t.etape==='CLO');
   document.getElementById('m-tc').textContent=actifs.length;
+  document.getElementById('m-tc-sub').textContent=actifs.length+' actifs · '+clos.length+' clôturés';
   const alertes=allTC.filter(t=>t.etape!=='CLO'&&t.maj_alerte);
   ['tc-badge','mob-tc-badge'].forEach(id=>{
     const b=document.getElementById(id);
     if(alertes.length>0){b.style.display='';b.textContent=alertes.length;}else b.style.display='none';
   });
-  document.getElementById('tc-count-sub').textContent=`${actifs.length} actifs · ${allTC.filter(t=>t.etape==='CLO').length} clôturés`;
+  document.getElementById('tc-count-sub').textContent=actifs.length+' actifs · '+clos.length+' clôturés';
+  // TC année en cours
+  const annee=new Date().getFullYear();
+  document.getElementById('m-annee').textContent=annee;
+  const tcAnnee=allTC.filter(t=>{
+    if(!t.created_at)return false;
+    return new Date(t.created_at).getFullYear()===annee;
+  });
+  document.getElementById('m-tc-annee').textContent=tcAnnee.length;
+  const tcAnneeClo=tcAnnee.filter(t=>t.etape==='CLO').length;
+  document.getElementById('m-tc-annee-sub').innerHTML='dont '+tcAnneeClo+' clôturés · <span id="m-annee">'+annee+'</span>';
 }
 
 function renderTCNotify(){
@@ -732,7 +782,12 @@ function renderTCNotify(){
 }
 
 // ─── TC TABLE ─────────────────────────────────────────────
-const ETAPE_BADGE={INSTRU:'badge-blue',PHOTOS:'badge-purple',DLR:'badge-amber',CLO:'badge-green',OFFRE:'badge-gray'};
+const ETAPE_BADGE={
+  UR:'badge-ur',ART:'badge-art',INSTRU:'badge-instru',BOOKING:'badge-booking',
+  PHOTOS:'badge-photos',ETD:'badge-etd',CD:'badge-cd',ORI:'badge-ori',
+  TELEX:'badge-telex',ETA:'badge-eta',SUI:'badge-sui',DLR:'badge-dlr',
+  LIV:'badge-liv',CLO:'badge-green'
+};
 
 function getTCFiltered(){
   return allTC.filter(t=>{
