@@ -479,7 +479,7 @@ tbody tr:hover td{background:rgba(255,255,255,0.02);}
       <div class="content">
         <div class="table-wrap table-scroll">
           <table>
-            <thead><tr><th>Type</th><th>Produit</th><th>Taille</th><th>Emplacement</th><th>Cartons</th><th>Paquets</th><th>N° Lot</th><th>DLC lot</th><th>Canal</th><th>Client</th><th>BL</th><th>Remarque</th><th>Date</th></tr></thead>
+            <thead><tr><th>Type</th><th>Produit</th><th>Taille</th><th>Emplacement</th><th>Cartons</th><th>Paquets</th><th>N° Lot</th><th>DLC lot</th><th>Canal</th><th>Client</th><th>BL</th><th>Remarque</th><th>Date</th><th></th></tr></thead>
             <tbody id="mouv-table-body"><tr><td colspan="13"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
           </table>
         </div>
@@ -1072,6 +1072,7 @@ function renderMouvTable(){
       <td class="mono">${m.reference_bl||'—'}</td>
       <td style="color:var(--text3);font-size:12px">${m.remarque||'—'}</td>
       <td class="mono" style="color:var(--text3);white-space:nowrap">${ds}</td>
+      <td>${m.type==='sortie'&&m.reference_bl?`<button class="btn btn-sm" style="padding:3px 8px" onclick="reimprimerBL('${m.reference_bl}')">🖨</button>`:''}</td>
     </tr>`;
   }).join('');
 }
@@ -1222,9 +1223,12 @@ async function validerEntree(){
 // ─── SORTIE MULTI-LIGNES ──────────────────────────────────────────
 let sortieLignes=[];
 
-function openModalSortie(){
+async function openModalSortie(){
   sortieLignes=[];
-  document.getElementById('sortie-bl').value='';
+  const annee=new Date().getFullYear();
+  const{data}=await sb.from('bl_compteur').select('dernier_numero').eq('annee',annee).single();
+  const prochain=(data?data.dernier_numero:0)+1;
+  document.getElementById('sortie-bl').value='BL-'+annee+'-'+String(prochain).padStart(3,'0');
   document.getElementById('sortie-client').value='';
   document.getElementById('sortie-lot').value='';
   document.getElementById('sortie-dlc-lot').value='';
@@ -1279,15 +1283,24 @@ function updateSortieTotal(){
   } else wrap.style.display='none';
 }
 
+async function genererNumeroBL(){
+  const annee=new Date().getFullYear();
+  const{data}=await sb.from('bl_compteur').select('dernier_numero').eq('annee',annee).single();
+  const nouveau=(data?data.dernier_numero:0)+1;
+  await sb.from('bl_compteur').upsert({annee,dernier_numero:nouveau});
+  return 'BL-'+annee+'-'+String(nouveau).padStart(3,'0');
+}
+
 async function validerSortie(){
-  const bl=document.getElementById('sortie-bl').value.trim();
+  const blSaisi=document.getElementById('sortie-bl').value.trim();
   const client=document.getElementById('sortie-client').value.trim();
   const emplacement=document.getElementById('sortie-emplacement').value;
   const canal=document.getElementById('sortie-canal').value;
   const lot=document.getElementById('sortie-lot').value||null;
   const dlc=document.getElementById('sortie-dlc-lot').value||null;
   const remarque=document.getElementById('sortie-remarque').value||null;
-  if(!bl||!client){showToast('N° BL et client requis','error');return;}
+  const bl=blSaisi||await genererNumeroBL();
+  if(!client){showToast('Client requis','error');return;}
   if(sortieLignes.length===0||sortieLignes.some(l=>!l.produit_id||!l.qte)){
     showToast('Tous les produits doivent avoir une quantité','error');return;
   }
@@ -1409,6 +1422,24 @@ function afficherBL(data){
   </div>`;
   document.getElementById('bl-preview').innerHTML=html;
   document.getElementById('modal-bl').style.display='flex';
+  try{
+    const store=JSON.parse(localStorage.getItem('fs_bls')||'[]');
+    store.unshift({bl:data.bl,client:data.client,date:new Date().toISOString(),html:html});
+    localStorage.setItem('fs_bls',JSON.stringify(store.slice(0,50)));
+  }catch(e){}
+}
+
+function reimprimerBL(numBl){
+  try{
+    const store=JSON.parse(localStorage.getItem('fs_bls')||'[]');
+    const found=store.find(function(b){return b.bl===numBl;});
+    if(found){
+      document.getElementById('bl-preview').innerHTML=found.html;
+      document.getElementById('modal-bl').style.display='flex';
+    }else{
+      showToast('BL introuvable — généré sur un autre appareil ?','error');
+    }
+  }catch(e){showToast('Impossible de récupérer ce BL','error');}
 }
 
 function imprimerBL(){
